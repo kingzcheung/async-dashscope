@@ -36,3 +36,11 @@ path = "examples/text-generation.rs"
 [[example]]
 name = "chat-stream"
 path = "examples/text-generation-stream.rs"
+
+[[example]]
+name = "mt"
+path = "examples/qwen-mt.rs"
+
+[[example]]
+name = "mt-stream"
+path = "examples/qwen-mt-stream.rs"
