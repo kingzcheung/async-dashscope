@@ -1,4 +1,9 @@
+use std::pin::Pin;
+
 use serde::{Deserialize, Serialize};
+use tokio_stream::Stream;
+
+use crate::error::DashScopeError;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
@@ -43,3 +48,5 @@ pub struct GenerationOutput {
 	#[serde(rename = "usage")]
 	pub usage: Option<Usage>,
 }
+
+pub type GenerationOutputStream = Pin<Box<dyn Stream<Item = Result<GenerationOutput, DashScopeError>> + Send>>;

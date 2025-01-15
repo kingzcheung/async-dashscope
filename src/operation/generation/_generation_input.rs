@@ -37,6 +37,10 @@ pub struct Parameters {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub translation_options: Option<TranslationOptions>,
+    //增量式流式输出
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    incremental_output: Option<bool>, 
 }
 
 #[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]

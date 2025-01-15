@@ -31,4 +31,8 @@ native-tls = ["reqwest/native-tls"]
 
 [[example]]
 name = "chat"
-path = "examples/chat.rs"
+path = "examples/text-generation.rs"
+
+[[example]]
+name = "chat-stream"
+path = "examples/text-generation-stream.rs"

@@ -23,6 +23,7 @@ impl Config {
     }
     pub fn headers(&self) -> reqwest::header::HeaderMap {
         let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert("Content-Type", "application/json".parse().unwrap());
         headers.insert(
             AUTHORIZATION,
             format!("Bearer {}", self.api_key.expose_secret())

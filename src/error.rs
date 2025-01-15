@@ -14,6 +14,8 @@ pub enum DashScopeError {
     ApiError(ApiError),
     #[error("invalid argument:{0}")]
     InvalidArgument(String),
+    #[error("stream error:{0}")]
+    StreamError(String)
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -45,3 +47,5 @@ pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> D
     );
     DashScopeError::JSONDeserialize(e)
 }
+
+pub type Result<T> = std::result::Result<T, DashScopeError>;
