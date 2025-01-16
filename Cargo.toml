@@ -2,6 +2,14 @@
 name = "async-dashscope"
 version = "0.1.0"
 edition = "2021"
+description = "A Rust client for DashScope API"
+repository = "https://github.com/kingzcheung/async-dashscope"
+authors = ["kingzcheung <kingzcheung@gmail.com>"]
+categories = ["api-bindings", "web-programming", "asynchronous"]
+rust-version = "1.75"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/kingzcheung/async-dashscope"
 
 [dependencies]
 derive_builder = "0.20.2"
