@@ -1,9 +1,7 @@
 use async_dashscope::{
-    operation::{
-        embeddings::input::{
+    operation::embeddings::input::{
             EmbeddingsInputBuilder, EmbeddingsInputItemBuilder, EmbeddingsParametersBuilder,
         },
-    },
     Client,
 };
 
