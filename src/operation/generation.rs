@@ -23,7 +23,7 @@ impl<'a> Generation<'a> {
             ));
         }
         self.client
-            .post("/text-generation/generation", request)
+            .post("/services/aigc/text-generation/generation", request)
             .await
     }
 
@@ -41,7 +41,7 @@ impl<'a> Generation<'a> {
 
         Ok(self
             .client
-            .post_stream("/text-generation/generation", request)
+            .post_stream("/services/aigc/text-generation/generation", request)
             .await)
     }
 }

@@ -9,7 +9,7 @@ use reqwest::header::AUTHORIZATION;
 use secrecy::{ExposeSecret as _, SecretString};
 
 
-pub const DASHSCOPE_API_BASE: &str = "https://dashscope.aliyuncs.com/api/v1/services/aigc";
+pub const DASHSCOPE_API_BASE: &str = "https://dashscope.aliyuncs.com/api/v1";
 
 #[derive(Debug,Builder)]
 pub struct Config {

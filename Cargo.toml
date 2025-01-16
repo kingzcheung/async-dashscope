@@ -52,3 +52,7 @@ path = "examples/multimodal-generation.rs"
 [[example]]
 name = "multimodal-stream"
 path = "examples/multimodal-generation-stream.rs"
+
+[[example]]
+name = "text-embedding"
+path = "examples/text-embedding.rs"

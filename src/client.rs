@@ -43,6 +43,10 @@ impl Client {
         crate::operation::multi_modal_conversation::MultiModalConversation::new(self)
     }
 
+    pub fn text_embeddings(&self)->crate::operation::embeddings::Embeddings<'_>{
+        crate::operation::embeddings::Embeddings::new(self)
+    }
+
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
@@ -68,6 +72,7 @@ impl Client {
         I: Serialize + Debug,
         O: DeserializeOwned,
     {
+        dbg!(&request);
         let request_maker = || async {
             Ok(self
                 .http_client

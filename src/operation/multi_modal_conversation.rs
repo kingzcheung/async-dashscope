@@ -36,7 +36,7 @@ impl<'a> MultiModalConversation<'a> {
             }
         }
         self.client
-            .post("/multimodal-generation/generation", request)
+            .post("/services/aigc/multimodal-generation/generation", request)
             .await
     }
 
@@ -65,7 +65,7 @@ impl<'a> MultiModalConversation<'a> {
 
         Ok(self
             .client
-            .post_stream("/multimodal-generation/generation", request)
+            .post_stream("/services/aigc/multimodal-generation/generation", request)
             .await)
     }
 }
