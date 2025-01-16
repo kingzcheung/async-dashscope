@@ -19,6 +19,12 @@ impl<'a> MultiModalConversation<'a> {
     }
 
     pub async fn call(&self, request: MultiModalConversationInput) -> Result<MultiModalConversationOutput> {
+        if request.stream == Some(true) {
+            return Err(DashScopeError::InvalidArgument(
+                "When stream is true, use MultiModalGeneration::call_stream".into(),
+            ));
+        }
+
         if request.parameters.is_some() {
             if let Some(ref parameters) = request.parameters  {
                 if parameters.incremental_output == Some(true) {
@@ -38,6 +44,11 @@ impl<'a> MultiModalConversation<'a> {
         &self,
         mut request: MultiModalConversationInput,
     ) -> Result<MultiModalConversationOutputStream> {
+        if request.stream != Some(true) {
+            return Err(DashScopeError::InvalidArgument(
+                "When stream is false, use MultiModalGeneration::call".into(),
+            ));
+        }
 
         if request.parameters.is_some() {
             if let Some(ref parameters) = request.parameters  {
