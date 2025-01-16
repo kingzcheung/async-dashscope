@@ -1,13 +1,17 @@
-pub use input::MultiModalConversationInput;
-pub use output::MultiModalConversationOutput;
-pub use output::MultiModalConversationOutputStream;
-
+pub use param::{
+    MultiModalConversationParam,
+    MultiModalConversationParamBuilder,
+    MultiModalConversationParamBuilderError,
+    MessageBuilder,
+    InputBuilder,
+};
+pub use output::*;
 use crate::{error::DashScopeError, Client};
 use crate::error::Result;
 
 use super::common::ParametersBuilder;
-pub mod input;
-pub mod output;
+mod param;
+mod output;
 
 pub struct MultiModalConversation<'a> {
     client: &'a Client,
@@ -18,7 +22,7 @@ impl<'a> MultiModalConversation<'a> {
         Self { client }
     }
 
-    pub async fn call(&self, request: MultiModalConversationInput) -> Result<MultiModalConversationOutput> {
+    pub async fn call(&self, request: MultiModalConversationParam) -> Result<MultiModalConversationOutput> {
         if request.stream == Some(true) {
             return Err(DashScopeError::InvalidArgument(
                 "When stream is true, use MultiModalGeneration::call_stream".into(),
@@ -42,7 +46,7 @@ impl<'a> MultiModalConversation<'a> {
 
     pub async fn call_stream(
         &self,
-        mut request: MultiModalConversationInput,
+        mut request: MultiModalConversationParam,
     ) -> Result<MultiModalConversationOutputStream> {
         if request.stream != Some(true) {
             return Err(DashScopeError::InvalidArgument(

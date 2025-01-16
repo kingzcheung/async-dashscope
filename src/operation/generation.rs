@@ -1,11 +1,17 @@
 use crate::error::Result;
 use crate::{client::Client, error::DashScopeError};
-pub use input::GenerationInput;
-pub use output::{GenerationOutput, GenerationOutputStream};
+pub use param::{
+    GenerationParam,
+    GenerationParamBuilder,
+    MessageBuilder,
+    InputBuilder,
+};
+pub use super::common::*;
+pub use output::*;
 
 
-pub mod input;
-pub mod output;
+mod param;
+mod output;
 
 pub struct Generation<'a> {
     client: &'a Client,
@@ -16,7 +22,7 @@ impl<'a> Generation<'a> {
         Self { client }
     }
 
-    pub async fn call(&self, request: GenerationInput) -> Result<GenerationOutput> {
+    pub async fn call(&self, request: GenerationParam) -> Result<GenerationOutput> {
         if request.stream.is_some() && request.stream.unwrap() {
             return Err(DashScopeError::InvalidArgument(
                 "When stream is true, use Generation::call_stream".into(),
@@ -29,7 +35,7 @@ impl<'a> Generation<'a> {
 
     pub async fn call_stream(
         &self,
-        mut request: GenerationInput,
+        mut request: GenerationParam,
     ) -> Result<GenerationOutputStream> {
         if request.stream.is_some() && !request.stream.unwrap() {
             return Err(DashScopeError::InvalidArgument(

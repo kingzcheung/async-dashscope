@@ -1,11 +1,11 @@
 use async_dashscope::{
-    operation::{common::ParametersBuilder, generation::input::{GenerationInputBuilder, InputBuilder, MessageBuilder}}, Client
+    operation::{common::ParametersBuilder, generation::{ GenerationParamBuilder, InputBuilder, MessageBuilder}}, Client
 };
 use tokio_stream::StreamExt as _;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let request = GenerationInputBuilder::default()
+    let request = GenerationParamBuilder::default()
         .model("qwen-turbo".to_string())
         .input(
             InputBuilder::default()

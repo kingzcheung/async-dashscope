@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::operation::common::{Parameters, StreamOptions};
 
 #[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
-pub struct GenerationInput {
+pub struct GenerationParam {
     
     pub model: String,
 

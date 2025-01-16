@@ -1,9 +1,9 @@
-use async_dashscope::{operation::multi_modal_conversation::input::{InputBuilder, MessageBuilder, MultiModalConversationInputBuilder}, Client};
+use async_dashscope::{operation::multi_modal_conversation::{InputBuilder, MessageBuilder,  MultiModalConversationParamBuilder}, Client};
 use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let request = MultiModalConversationInputBuilder::default()
+    let request = MultiModalConversationParamBuilder::default()
         .model("qwen-vl-max")
         .input(InputBuilder::default().messages(vec![
             MessageBuilder::default()
