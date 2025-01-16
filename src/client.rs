@@ -37,10 +37,10 @@ impl Client {
         crate::operation::generation::Generation::new(self)
     }
 
-    pub fn multi_modal_generation(
+    pub fn multi_modal_conversation(
         &self,
-    ) -> crate::operation::multimodal_generation::MultiModalGeneration<'_> {
-        crate::operation::multimodal_generation::MultiModalGeneration::new(self)
+    ) -> crate::operation::multi_modal_conversation::MultiModalConversation<'_> {
+        crate::operation::multi_modal_conversation::MultiModalConversation::new(self)
     }
 
     pub(crate) async fn post_stream<I, O>(

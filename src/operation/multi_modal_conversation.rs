@@ -1,6 +1,6 @@
-pub use input::MultiModalGenerationInput;
-pub use output::MultiModalGenerationOutput;
-use output::MultiModalGenerationOutputStream;
+pub use input::MultiModalConversationInput;
+pub use output::MultiModalConversationOutput;
+pub use output::MultiModalConversationOutputStream;
 
 use crate::{error::DashScopeError, Client};
 use crate::error::Result;
@@ -9,16 +9,16 @@ use super::common::ParametersBuilder;
 pub mod input;
 pub mod output;
 
-pub struct MultiModalGeneration<'a> {
+pub struct MultiModalConversation<'a> {
     client: &'a Client,
 }
 
-impl<'a> MultiModalGeneration<'a> {
+impl<'a> MultiModalConversation<'a> {
     pub fn new(client: &'a Client) -> Self {
         Self { client }
     }
 
-    pub async fn call(&self, request: MultiModalGenerationInput) -> Result<MultiModalGenerationOutput> {
+    pub async fn call(&self, request: MultiModalConversationInput) -> Result<MultiModalConversationOutput> {
         if request.parameters.is_some() {
             if let Some(ref parameters) = request.parameters  {
                 if parameters.incremental_output == Some(true) {
@@ -36,8 +36,8 @@ impl<'a> MultiModalGeneration<'a> {
 
     pub async fn call_stream(
         &self,
-        mut request: MultiModalGenerationInput,
-    ) -> Result<MultiModalGenerationOutputStream> {
+        mut request: MultiModalConversationInput,
+    ) -> Result<MultiModalConversationOutputStream> {
 
         if request.parameters.is_some() {
             if let Some(ref parameters) = request.parameters  {

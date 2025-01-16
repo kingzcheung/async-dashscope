@@ -5,9 +5,8 @@ use serde_json::Value;
 use crate::operation::common::Parameters;
 
 
-
 #[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
-pub struct MultiModalGenerationInput {
+pub struct MultiModalConversationInput {
     #[builder(setter(into))]
     pub model: String,
     pub input: Input,

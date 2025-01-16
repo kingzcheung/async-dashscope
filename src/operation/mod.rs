@@ -1,3 +1,3 @@
 pub mod generation;
-pub mod multimodal_generation;
+pub mod multi_modal_conversation;
 pub mod common;

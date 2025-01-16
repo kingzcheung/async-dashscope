@@ -43,7 +43,7 @@ pub struct Usage {
 	pub output_tokens: Option<i32>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MultiModalGenerationOutput {
+pub struct MultiModalConversationOutput {
 	#[serde(rename = "output")]
 	pub output: Output,
 
@@ -55,5 +55,5 @@ pub struct MultiModalGenerationOutput {
 }
 
 
-pub type MultiModalGenerationOutputStream = Pin<Box<dyn Stream<Item = Result<MultiModalGenerationOutput, DashScopeError>> + Send>>;
+pub type MultiModalConversationOutputStream = Pin<Box<dyn Stream<Item = Result<MultiModalConversationOutput, DashScopeError>> + Send>>;
 
