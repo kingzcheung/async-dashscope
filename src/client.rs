@@ -68,7 +68,6 @@ impl Client {
         I: Serialize + Debug,
         O: DeserializeOwned,
     {
-        println!("{:?}",serde_json::to_string(&request));
         let request_maker = || async {
             Ok(self
                 .http_client

@@ -1,4 +1,9 @@
+use std::pin::Pin;
+
 use serde::{Deserialize, Serialize};
+use tokio_stream::Stream;
+
+use crate::error::DashScopeError;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Content {
@@ -48,3 +53,7 @@ pub struct MultiModalGenerationOutput {
 	#[serde(rename = "usage")]
 	pub usage: Option<Usage>,
 }
+
+
+pub type MultiModalGenerationOutputStream = Pin<Box<dyn Stream<Item = Result<MultiModalGenerationOutput, DashScopeError>> + Send>>;
+

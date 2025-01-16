@@ -38,6 +38,11 @@ impl Display for ApiError {
     }
 }
 
+impl From<crate::operation::common::ParametersBuilderError> for DashScopeError {
+    fn from(error: crate::operation::common::ParametersBuilderError) -> Self {
+        DashScopeError::InvalidArgument(error.to_string())
+    }
+}
 
 
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> DashScopeError {

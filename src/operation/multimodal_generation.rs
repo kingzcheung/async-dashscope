@@ -1,8 +1,11 @@
 pub use input::MultiModalGenerationInput;
 pub use output::MultiModalGenerationOutput;
+use output::MultiModalGenerationOutputStream;
 
 use crate::{error::DashScopeError, Client};
 use crate::error::Result;
+
+use super::common::ParametersBuilder;
 pub mod input;
 pub mod output;
 
@@ -29,5 +32,29 @@ impl<'a> MultiModalGeneration<'a> {
         self.client
             .post("/multimodal-generation/generation", request)
             .await
+    }
+
+    pub async fn call_stream(
+        &self,
+        mut request: MultiModalGenerationInput,
+    ) -> Result<MultiModalGenerationOutputStream> {
+
+        if request.parameters.is_some() {
+            if let Some(ref parameters) = request.parameters  {
+                if parameters.incremental_output == Some(false) {
+                    return Err(DashScopeError::InvalidArgument(
+                        "When stream is false, use MultiModalGeneration::call".into(),
+                    ));
+                }
+                
+            }
+        }
+
+        request.parameters = Some(ParametersBuilder::default().incremental_output(true).build()?);
+
+        Ok(self
+            .client
+            .post_stream("/multimodal-generation/generation", request)
+            .await)
     }
 }
