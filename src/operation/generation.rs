@@ -1,12 +1,11 @@
 use crate::error::Result;
 use crate::{client::Client, error::DashScopeError};
-use _generation_input::GenerationInput;
-use _generation_output::GenerationOutput;
+pub use input::GenerationInput;
+pub use output::{GenerationOutput, GenerationOutputStream};
 
-use super::GenerationOutputStream;
 
-pub(crate) mod _generation_input;
-pub(crate) mod _generation_output;
+pub mod input;
+pub mod output;
 
 pub struct Generation<'a> {
     client: &'a Client,

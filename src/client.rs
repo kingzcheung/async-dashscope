@@ -1,4 +1,4 @@
-use std::pin::Pin;
+use std::{fmt::Debug, pin::Pin};
 
 use bytes::Bytes;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt as _};
@@ -7,7 +7,7 @@ use tokio_stream::{Stream, StreamExt as _};
 
 use crate::{
     config::Config,
-    error::{map_deserialization_error, ApiError, DashScopeError}, operation::Choices,
+    error::{map_deserialization_error, ApiError, DashScopeError},
 };
 
 #[derive(Debug, Default)]
@@ -37,6 +37,12 @@ impl Client {
         crate::operation::generation::Generation::new(self)
     }
 
+    pub fn multi_modal_generation(
+        &self,
+    ) -> crate::operation::multimodal_generation::MultiModalGeneration<'_> {
+        crate::operation::multimodal_generation::MultiModalGeneration::new(self)
+    }
+
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
@@ -59,9 +65,10 @@ impl Client {
 
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, DashScopeError>
     where
-        I: Serialize,
+        I: Serialize + Debug,
         O: DeserializeOwned,
     {
+        println!("{:?}",serde_json::to_string(&request));
         let request_maker = || async {
             Ok(self
                 .http_client
@@ -157,18 +164,16 @@ where
                 }
                 Ok(event) => match event {
                     Event::Message(message) => {
-                        
-                        #[derive(Deserialize,Debug)]
+                        #[derive(Deserialize, Debug)]
                         struct Result {
                             output: Output,
-                            
                         }
-                        #[derive(Deserialize,Debug)]
-                        struct Output{
-                            choices:Vec<Choices>
+                        #[derive(Deserialize, Debug)]
+                        struct Output {
+                            choices: Vec<Choices>,
                         }
-                        #[derive(Deserialize,Debug)]
-                        struct Choices{
+                        #[derive(Deserialize, Debug)]
+                        struct Choices {
                             finish_reason: Option<String>,
                         }
 

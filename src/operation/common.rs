@@ -1,34 +1,6 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
-pub struct GenerationInput {
-    pub model: String,
-    pub input: Input,
-    pub parameters: Parameters,
-    #[builder(setter(into, strip_option))]
-    #[builder(default=Some(false))]
-    pub stream: Option<bool>,
-    #[builder(setter(into, strip_option))]
-    #[builder(default=None)]
-    pub stream_options: Option<StreamOptions>,
-}
-
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
-pub struct Input {
-    pub messages: Vec<Message>,
-}
-
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
-pub struct Message {
-    #[builder(setter(into))]
-    pub role: String,
-    #[builder(setter(into))]
-    pub content: String,
-    #[builder(setter(into, strip_option))]
-    #[builder(default=Some(false))]
-    pub partial: Option<bool>,
-}
 
 #[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
 pub struct Parameters {
@@ -41,7 +13,7 @@ pub struct Parameters {
     //增量式流式输出
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    incremental_output: Option<bool>, 
+    pub incremental_output: Option<bool>, 
 }
 
 #[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]

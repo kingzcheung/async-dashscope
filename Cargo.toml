@@ -44,3 +44,7 @@ path = "examples/qwen-mt.rs"
 [[example]]
 name = "mt-stream"
 path = "examples/qwen-mt-stream.rs"
+
+[[example]]
+name = "multimodal"
+path = "examples/multimodal-generation.rs"
