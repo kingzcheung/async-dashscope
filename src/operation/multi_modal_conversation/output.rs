@@ -3,7 +3,7 @@ use std::pin::Pin;
 use serde::{Deserialize, Serialize};
 use tokio_stream::Stream;
 
-use crate::error::DashScopeError;
+use crate::{error::DashScopeError, operation::common::Usage};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Content {
@@ -31,25 +31,18 @@ pub struct Output {
 	#[serde(rename = "choices")]
 	pub choices: Vec<Choices>,
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Usage {
-	#[serde(rename = "image_tokens")]
-	pub image_tokens: Option<i32>,
 
-	#[serde(rename = "input_tokens")]
-	pub input_tokens: Option<i32>,
-
-	#[serde(rename = "output_tokens")]
-	pub output_tokens: Option<i32>,
-}
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MultiModalConversationOutput {
+	/// 调用结果信息。
 	#[serde(rename = "output")]
 	pub output: Output,
 
+	/// 本次调用的唯一标识符。
 	#[serde(rename = "request_id")]
 	pub request_id: String,
 
+	/// 本次chat请求使用的token信息。
 	#[serde(rename = "usage")]
 	pub usage: Option<Usage>,
 }

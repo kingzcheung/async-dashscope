@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::operation::common::Usage;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Embeddings {
 	#[serde(rename = "embedding")]
@@ -13,11 +15,7 @@ pub struct Output {
 	#[serde(rename = "embeddings")]
 	pub embeddings: Vec<Embeddings>,
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Usage {
-	#[serde(rename = "total_tokens")]
-	pub total_tokens: Option<i32>,
-}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EmbeddingsOutput {
 	#[serde(rename = "code")]
