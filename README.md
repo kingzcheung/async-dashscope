@@ -130,4 +130,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 欢迎贡献代码！如果你有任何改进建议或发现 bug，请提交 issue 或 pull request。我们非常感谢你的帮助！
 
 #### 许可证
-本项目采用 MIT 许可证，详情请参见 [LICENSE](LICENSE) 文件。
+本项目采用 MIT 许可证，详情请参见 [LICENSE](LICENSE-MIT) 文件。
