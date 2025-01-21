@@ -1,5 +1,14 @@
 # async-dashscope
 
+![Crates.io MSRV](https://img.shields.io/crates/msrv/async-dashscope?style=flat-square)
+![Crates.io License](https://img.shields.io/crates/l/async-dashscope?style=flat-square)
+![Crates.io Version](https://img.shields.io/crates/v/async-dashscope?style=flat-square)
+![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/async-dashscope?style=flat-square)
+![docs.rs](https://img.shields.io/docsrs/async-dashscope?style=flat-square&label=docs.rs)
+
+
+
+
 #### 项目简介
 `async-dashscope` 是为通义千问百炼平台实现的（非官方）异步 SDK，支持文本生成、多模态生成以及 embedding 功能。通过该 SDK，开发者可以方便地调用通义千问百炼平台提供的各种 API，进行高效的异步操作。
 
@@ -19,7 +28,7 @@ cargo add async-dashscope
 
 ```toml
 [dependencies]
-async-dashscope = "0.1.0" 
+async-dashscope = "0.2.0" 
 ```
 
 #### 使用示例
