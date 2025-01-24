@@ -4,7 +4,8 @@
 ![Crates.io License](https://img.shields.io/crates/l/async-dashscope?style=flat-square)
 ![Crates.io Version](https://img.shields.io/crates/v/async-dashscope?style=flat-square)
 ![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/async-dashscope?style=flat-square)
-![docs.rs](https://img.shields.io/docsrs/async-dashscope?style=flat-square&label=docs.rs)
+![docs.rs](https://img.shields.io/docsrs/async-dashscope?style=flat-square&label=docs.rs&link=https%3A%2F%2Fdocs.rs%2Fasync-dashscope%2Flatest%2Fasync_dashscope%2F)
+
 
 
 

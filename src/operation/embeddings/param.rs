@@ -19,29 +19,27 @@ pub struct EmbeddingsParam {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    pub text_type:Option<String>,
+    pub text_type: Option<String>,
 }
 
-
-#[derive(Debug, Clone, Serialize,Builder, Deserialize, PartialEq)]
-pub struct EmbeddingsInput{
+#[derive(Debug, Clone, Serialize, Builder, Deserialize, PartialEq)]
+pub struct EmbeddingsInput {
     /// 文本列表
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    texts:Option<Vec<String>>,
+    texts: Option<Vec<String>>,
     /// 图片地址或者图片 base64
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    image:Option<String>,
+    image: Option<String>,
     /// 视频地址
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    video:Option<String>,
+    video: Option<String>,
 }
-
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 

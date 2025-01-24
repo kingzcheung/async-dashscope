@@ -3,9 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::operation::common::{Parameters, StreamOptions};
 
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct GenerationParam {
-    
     pub model: String,
 
     pub input: Input,
@@ -24,12 +23,12 @@ pub struct GenerationParam {
     pub stream_options: Option<StreamOptions>,
 }
 
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct Input {
     pub messages: Vec<Message>,
 }
 
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct Message {
     #[builder(setter(into))]
     pub role: String,

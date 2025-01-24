@@ -2,8 +2,6 @@ use std::fmt::Display;
 
 use serde::Deserialize;
 
-
-
 #[derive(Debug, thiserror::Error)]
 pub enum DashScopeError {
     #[error("http error: {0}")]
@@ -15,7 +13,7 @@ pub enum DashScopeError {
     #[error("invalid argument:{0}")]
     InvalidArgument(String),
     #[error("stream error:{0}")]
-    StreamError(String)
+    StreamError(String),
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -43,7 +41,6 @@ impl From<crate::operation::common::ParametersBuilderError> for DashScopeError {
         DashScopeError::InvalidArgument(error.to_string())
     }
 }
-
 
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> DashScopeError {
     tracing::error!(

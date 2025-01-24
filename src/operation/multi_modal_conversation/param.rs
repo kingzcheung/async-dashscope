@@ -4,8 +4,7 @@ use serde_json::Value;
 
 use crate::operation::common::Parameters;
 
-
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct MultiModalConversationParam {
     #[builder(setter(into))]
     pub model: String,
@@ -13,24 +12,23 @@ pub struct MultiModalConversationParam {
 
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    pub stream:Option<bool>,
+    pub stream: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    pub parameters: Option<Parameters>
+    pub parameters: Option<Parameters>,
 }
 
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct Input {
     messages: Vec<Message>,
 }
 
-#[derive(Debug, Clone, Builder,Serialize,Deserialize, PartialEq)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct Message {
     #[builder(setter(into))]
     role: String,
     #[serde(rename = "content")]
-    contents: Vec<Value>
+    contents: Vec<Value>,
 }
-

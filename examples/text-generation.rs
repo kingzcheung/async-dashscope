@@ -1,5 +1,9 @@
 use async_dashscope::{
-    operation::{common::ParametersBuilder, generation::{ GenerationParamBuilder, InputBuilder, MessageBuilder}}, Client
+    operation::{
+        common::ParametersBuilder,
+        generation::{GenerationParamBuilder, InputBuilder, MessageBuilder},
+    },
+    Client,
 };
 
 #[tokio::main]

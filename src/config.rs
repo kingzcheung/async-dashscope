@@ -8,18 +8,17 @@ use derive_builder::Builder;
 use reqwest::header::AUTHORIZATION;
 use secrecy::{ExposeSecret as _, SecretString};
 
-
 pub const DASHSCOPE_API_BASE: &str = "https://dashscope.aliyuncs.com/api/v1";
 
-#[derive(Debug,Builder)]
+#[derive(Debug, Builder)]
 pub struct Config {
     api_base: String,
     api_key: SecretString,
 }
 
 impl Config {
-    pub fn url(&self,path:&str) ->String {
-        format!("{}{}",self.api_base,path)
+    pub fn url(&self, path: &str) -> String {
+        format!("{}{}", self.api_base, path)
     }
     pub fn headers(&self) -> reqwest::header::HeaderMap {
         let mut headers = reqwest::header::HeaderMap::new();
@@ -44,4 +43,3 @@ impl Default for Config {
         }
     }
 }
-

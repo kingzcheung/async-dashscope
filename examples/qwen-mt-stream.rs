@@ -1,5 +1,9 @@
 use async_dashscope::{
-    operation::{common::{ParametersBuilder, TranslationOptionsBuilder}, generation::{ GenerationParamBuilder, InputBuilder, MessageBuilder}}, Client
+    operation::{
+        common::{ParametersBuilder, TranslationOptionsBuilder},
+        generation::{GenerationParamBuilder, InputBuilder, MessageBuilder},
+    },
+    Client,
 };
 use tokio_stream::StreamExt as _;
 

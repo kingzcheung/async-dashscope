@@ -33,17 +33,42 @@ impl Client {
         }
     }
 
+    /// 获取当前实例的生成（Generation）信息
+    ///
+    /// 此方法属于操作级别，用于创建一个`Generation`对象，
+    /// 该对象表示当前实例的某一特定生成（代）信息
+    ///
+    /// # Returns
+    ///
+    /// 返回一个`Generation`对象，用于表示当前实例的生成信息
     pub fn generation(&self) -> crate::operation::generation::Generation<'_> {
         crate::operation::generation::Generation::new(self)
     }
 
+    /// 启发多模态对话的功能
+    ///
+    /// 该函数提供了与多模态对话相关的操作入口
+    /// 它创建并返回一个MultiModalConversation实例，用于执行多模态对话操作
+    ///
+    /// # Returns
+    ///
+    /// 返回一个`MultiModalConversation`实例，用于进行多模态对话操作
     pub fn multi_modal_conversation(
         &self,
     ) -> crate::operation::multi_modal_conversation::MultiModalConversation<'_> {
         crate::operation::multi_modal_conversation::MultiModalConversation::new(self)
     }
 
-    pub fn text_embeddings(&self)->crate::operation::embeddings::Embeddings<'_>{
+    /// 获取文本嵌入表示
+    ///
+    /// 此函数提供了一个接口，用于将文本转换为嵌入表示
+    /// 它利用当前实例的上下文来生成文本的嵌入表示
+    ///
+    /// # 返回值
+    ///
+    /// 返回一个`Embeddings`实例，该实例封装了文本嵌入相关的操作和数据
+    /// `Embeddings`类型提供了进一步处理文本数据的能力，如计算文本相似度或进行文本分类等
+    pub fn text_embeddings(&self) -> crate::operation::embeddings::Embeddings<'_> {
         crate::operation::embeddings::Embeddings::new(self)
     }
 
