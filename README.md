@@ -1,12 +1,6 @@
 # async-dashscope
 
-![Crates.io MSRV](https://img.shields.io/crates/msrv/async-dashscope?style=flat-square)
-![Crates.io License](https://img.shields.io/crates/l/async-dashscope?style=flat-square)
-![Crates.io Version](https://img.shields.io/crates/v/async-dashscope?style=flat-square)
-![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/async-dashscope?style=flat-square)
-![docs.rs](https://img.shields.io/docsrs/async-dashscope?style=flat-square&label=docs.rs&link=https%3A%2F%2Fdocs.rs%2Fasync-dashscope%2Flatest%2Fasync_dashscope%2F)
-
-
+[![Crates.io MSRV](https://img.shields.io/crates/msrv/async-dashscope?style=flat-square)](https://github.com/kingzcheung/async-dashscope) [![Crates.io License](https://img.shields.io/crates/l/async-dashscope?style=flat-square)](https://github.com/kingzcheung/async-dashscope) [![Crates.io Version](https://img.shields.io/crates/v/async-dashscope?style=flat-square)](https://crates.io/crates/async-dashscope) [![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/async-dashscope?style=flat-square)](https://crates.io/crates/async-dashscope) [![docs.rs](https://img.shields.io/docsrs/async-dashscope?style=flat-square&label=docs.rs&link=https%3A%2F%2Fdocs.rs%2Fasync-dashscope%2Flatest%2Fasync_dashscope%2F)](https://docs.rs/async-dashscope)
 
 
 
