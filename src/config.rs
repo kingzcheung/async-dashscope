@@ -1,6 +1,6 @@
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation - text-generation
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation - image-generation
-// https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation - 音频理解
+// https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation - 音频理解、视觉理解
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation  - 录音文件识别
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis - 创意海报生成API参考
 
@@ -30,6 +30,10 @@ impl Config {
                 .unwrap(),
         );
         headers
+    }
+    
+    pub fn set_api_key(&mut self, api_key: SecretString) {
+        self.api_key = api_key;
     }
 }
 

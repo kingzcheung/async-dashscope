@@ -21,6 +21,10 @@ impl Client {
     pub fn new() -> Self {
         Self::default()
     }
+    pub fn with_api_key(mut self, api_key: String) -> Self {
+        self.config.set_api_key(api_key.into());
+        self
+    }
     pub fn build(
         http_client: reqwest::Client,
         config: Config,
