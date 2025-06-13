@@ -10,7 +10,7 @@ use secrecy::{ExposeSecret as _, SecretString};
 
 pub const DASHSCOPE_API_BASE: &str = "https://dashscope.aliyuncs.com/api/v1";
 
-#[derive(Debug, Builder)]
+#[derive(Debug, Builder,Clone)]
 pub struct Config {
     api_base: String,
     api_key: SecretString,

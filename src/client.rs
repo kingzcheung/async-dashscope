@@ -10,7 +10,7 @@ use crate::{
     error::{map_deserialization_error, ApiError, DashScopeError},
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default,Clone)]
 pub struct Client {
     http_client: reqwest::Client,
     config: Config,
