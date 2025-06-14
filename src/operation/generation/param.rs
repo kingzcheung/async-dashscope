@@ -5,6 +5,7 @@ use crate::operation::common::{Parameters, StreamOptions};
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct GenerationParam {
+    #[builder(setter(into, strip_option))]
     pub model: String,
 
     pub input: Input,

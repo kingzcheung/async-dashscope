@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct Parameters {
@@ -13,8 +16,72 @@ pub struct Parameters {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub incremental_output: Option<bool>,
+
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    // function call
+    pub tools: Option<Vec<FunctionCall>>,
+
+    // 限制思考长度
+    // 该参数仅支持Qwen3 模型设定。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub thinking_budget: Option<usize>,
+
+    // 联网搜索
+    // 仅 Qwen3 商业版模型、QwQ 商业版模型（除了qwq-plus-2025-03-05）支持联网搜索。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub enable_search: Option<bool>,
+
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub search_options: Option<SearchOptions>,
+
+    // 只支持 qwen3, 对 QwQ 与 DeepSeek-R1 模型无效。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub enable_thinking: Option<bool>,
 }
 
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
+pub struct FunctionCall {
+    #[builder(setter(into, strip_option))]
+    #[serde(rename = "type")]
+    pub typ: Option<String>,
+    pub function: Option<Function>,
+}
+
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
+#[builder(setter(into, strip_option))]
+pub struct Function {
+    name: String,
+    description: Option<String>,
+    parameters: Option<FunctionParameters>,
+}
+
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
+pub struct FunctionParameters {
+    #[serde(rename = "type")]
+    pub typ: String,
+    properties: HashMap<String, Value>,
+    required: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
+#[builder(setter(into, strip_option))]
+pub struct SearchOptions {
+    #[builder(default=None)]
+    pub forced_search: Option<bool>,
+    #[builder(default=None)]
+    pub enable_source: Option<bool>,
+    #[builder(default=None)]
+    pub enable_citation: Option<bool>,
+    #[builder(default=None)]
+    pub citation_format: Option<String>,
+    #[builder(default=None)]
+    pub search_strategy: Option<String>,
+}
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct StreamOptions {

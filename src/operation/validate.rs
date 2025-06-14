@@ -7,7 +7,7 @@ pub trait ModelValidation {
 pub struct DefaultValidation;
 
 impl ModelValidation for DefaultValidation {
-    fn validate(&self, params: &GenerationParam) -> Result<()> {
+    fn validate(&self, _params: &GenerationParam) -> Result<()> {
         Ok(())
     }
 }
