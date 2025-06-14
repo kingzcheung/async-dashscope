@@ -46,6 +46,17 @@ pub struct Parameters {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub enable_thinking: Option<bool>,
+
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub response_format: Option<ResponseFormat>
+}
+
+#[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
+pub struct ResponseFormat{
+    #[builder(setter(into, strip_option))]
+    #[serde(rename = "type")]
+    pub type_: String,
 }
 
 impl ParametersBuilder {
