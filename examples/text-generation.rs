@@ -8,6 +8,7 @@ use async_dashscope::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenvy::dotenv()?;
     let request = GenerationParamBuilder::default()
         .model("qwen-turbo".to_string())
         .input(
@@ -26,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .build()?;
 
-    let client = Client::new();
+    let client = Client::default();
 
     let response = client.generation().call(request).await?;
     dbg!(response);

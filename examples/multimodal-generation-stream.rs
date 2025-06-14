@@ -8,6 +8,7 @@ use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenvy::dotenv()?;
     let request = MultiModalConversationParamBuilder::default()
         .model("qwen-vl-max")
         .input(InputBuilder::default().messages(vec![

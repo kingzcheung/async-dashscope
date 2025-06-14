@@ -7,6 +7,7 @@ use async_dashscope::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenvy::dotenv()?;
     let client = Client::new();
     let input = EmbeddingsParamBuilder::default()
         .model("text-embedding-v3")

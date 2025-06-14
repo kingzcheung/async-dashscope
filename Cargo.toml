@@ -30,6 +30,10 @@ tokio = { version = "1.45.1", features = ["full"] }
 tokio-stream = "0.1.17"
 tokio-util = { version = "0.7.15", features = ["codec", "io-util"] }
 
+
+[dev-dependencies]
+dotenvy ={ version = "0.15.7"}
+
 [features]
 default = ["rustls"]
 # Enable rustls for TLS support

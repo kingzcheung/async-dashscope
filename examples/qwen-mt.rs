@@ -8,6 +8,7 @@ use async_dashscope::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenvy::dotenv()?;
     let request = GenerationParamBuilder::default()
         .model("qwen-mt-turbo".to_string())
         .input(

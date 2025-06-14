@@ -10,7 +10,7 @@ use crate::{
     error::{map_deserialization_error, ApiError, DashScopeError},
 };
 
-#[derive(Debug, Default,Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Client {
     http_client: reqwest::Client,
     config: Config,
@@ -21,10 +21,19 @@ impl Client {
     pub fn new() -> Self {
         Self::default()
     }
+
+    pub fn with_config(config: Config) -> Self {
+        Self {
+            http_client: reqwest::Client::new(),
+            config,
+            backoff: backoff::ExponentialBackoff::default(),
+        }
+    }
     pub fn with_api_key(mut self, api_key: String) -> Self {
         self.config.set_api_key(api_key.into());
         self
     }
+
     pub fn build(
         http_client: reqwest::Client,
         config: Config,
@@ -54,8 +63,6 @@ impl Client {
     /// 该函数提供了与多模态对话相关的操作入口
     /// 它创建并返回一个MultiModalConversation实例，用于执行多模态对话操作
     ///
-    /// # Returns
-    ///
     /// 返回一个`MultiModalConversation`实例，用于进行多模态对话操作
     pub fn multi_modal_conversation(
         &self,
@@ -67,8 +74,6 @@ impl Client {
     ///
     /// 此函数提供了一个接口，用于将文本转换为嵌入表示
     /// 它利用当前实例的上下文来生成文本的嵌入表示
-    ///
-    /// # 返回值
     ///
     /// 返回一个`Embeddings`实例，该实例封装了文本嵌入相关的操作和数据
     /// `Embeddings`类型提供了进一步处理文本数据的能力，如计算文本相似度或进行文本分类等
@@ -101,7 +106,7 @@ impl Client {
         I: Serialize + Debug,
         O: DeserializeOwned,
     {
-        dbg!(&request);
+        // dbg!(&request);
         let request_maker = || async {
             Ok(self
                 .http_client
@@ -121,6 +126,9 @@ impl Client {
         Fut: core::future::Future<Output = Result<reqwest::Request, DashScopeError>>,
     {
         let bytes = self.execute_raw(request_maker).await?;
+
+        // bytes to string
+        // let s = String::from_utf8(bytes.to_vec()).unwrap();
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
@@ -247,4 +255,26 @@ where
     });
 
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::config::ConfigBuilder;
+
+    use super::*;
+
+    #[test]
+    pub fn test_config() {
+        let config = ConfigBuilder::default()
+            .api_key("test key")
+            .build()
+            .unwrap();
+        let client = Client::with_config(config);
+
+        for header in client.config.headers().iter() {
+            if header.0 == "authorization" {
+                assert_eq!(header.1, "Bearer test key");
+            }
+        }
+    }
 }
