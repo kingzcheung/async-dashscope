@@ -5,12 +5,14 @@ use async_dashscope::{
     Client,
 };
 use serde_json::json;
+use tokio_stream::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv()?;
     let request = MultiModalConversationParamBuilder::default()
         .model("qwen-vl-max")
+        .stream(true)
         .input(InputBuilder::default().messages(vec![
             MessageBuilder::default()
             .role("user")
@@ -26,9 +28,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let client = Client::new();
 
-    let response = client.multi_modal_conversation().call(request).await?;
+    let mut stream = client.multi_modal_conversation().call_stream(request).await?;
 
-    dbg!(response);
+    while let Some(response) = stream.next().await {
+        match response {
+            Ok(r) => {
+                println!("{:?}", r.output.choices[0].message.content);
+            },
+            Err(e) => println!("{}", e),
+        }
+    }
 
     Ok(())
 }

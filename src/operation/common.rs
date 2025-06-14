@@ -15,6 +15,7 @@ pub struct Parameters {
     pub incremental_output: Option<bool>,
 }
 
+
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct StreamOptions {
     pub include_usage: bool,

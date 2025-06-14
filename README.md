@@ -11,6 +11,8 @@
 - **文本生成**：支持多种文本生成任务，如文本补全、对话生成等。
 - **多模态生成**：支持图像、音频等多种模态的数据生成任务。
 - **Embedding**：提供文本 embedding 功能，用于将文本转换为向量表示，便于后续的语义分析和相似度计算。
+- **DeepSeek**:  支持百炼平台的 deepseek 模型的调用
+- 
 
 #### 安装
 
@@ -34,7 +36,9 @@ api_key 通过环境变量传入：
 ```shell
 export DASHSCOPE_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx
 ```
+
 或者
+
 ```rust
 
 let client = Client::new().with_api_key(std::env::var("DASHSCOPE_API_KEY").unwrap());
@@ -42,6 +46,7 @@ let client = Client::new().with_api_key(std::env::var("DASHSCOPE_API_KEY").unwra
 ```
 
 ##### 文本生成示例
+
 ```rust
 use async_dashscope::{
     operation::{common::{ParametersBuilder, TranslationOptionsBuilder}, generation::{ GenerationParamBuilder, InputBuilder, MessageBuilder}}, Client
@@ -98,11 +103,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     json!({"text": "这是什么?"})
                 ]
             ).build()?
-          
+        
         ]).build()?
     )
         .build()?;
-      
+    
     let client = Client::new();
 
     let response = client.multi_modal_conversation().call(request).await?;

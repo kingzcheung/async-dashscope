@@ -1,6 +1,6 @@
 pub use super::common::*;
-use crate::error::Result;
 use crate::{client::Client, error::DashScopeError};
+use crate::{error::Result, operation::validate::check_model_parameters};
 pub use output::*;
 pub use param::{GenerationParam, GenerationParamBuilder, InputBuilder, MessageBuilder};
 
@@ -33,6 +33,11 @@ impl<'a> Generation<'a> {
                 "When stream is true, use Generation::call_stream".into(),
             ));
         }
+
+        // 检查参数
+        let c = check_model_parameters(&request.model);
+        c.validate(&request)?;
+
         // 发送POST请求到生成服务，并等待结果
         self.client
             .post("/services/aigc/text-generation/generation", request)

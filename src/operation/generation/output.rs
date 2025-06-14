@@ -16,6 +16,10 @@ pub struct Message {
     /// 输出消息的角色，固定为assistant。
     #[serde(rename = "role")]
     pub role: String,
+
+    // 思考内容
+    #[serde(rename = "reasoning_content")]
+    pub reasoning_content:Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
