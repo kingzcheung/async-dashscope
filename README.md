@@ -27,7 +27,7 @@ cargo add async-dashscope
 
 ```toml
 [dependencies]
-async-dashscope = "0.2.0" 
+async-dashscope = "*" 
 ```
 
 #### 使用示例
@@ -104,11 +104,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     json!({"text": "这是什么?"})
                 ]
             ).build()?
-        
+      
         ]).build()?
     )
         .build()?;
-    
+  
     let client = Client::new();
 
     let response = client.multi_modal_conversation().call(request).await?;

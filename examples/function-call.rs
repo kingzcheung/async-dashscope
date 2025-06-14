@@ -16,6 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()
         .unwrap()];
 
+    // add function call
     let request = GenerationParamBuilder::default()
         .model("qwen-turbo".to_string())
         .input(InputBuilder::default().messages(messages.clone()).build()?)
@@ -42,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let response = client.generation().call(request).await?;
     // dbg!(response);
     let response_message = response.output.choices.unwrap().first().unwrap().message.clone();
-
+    // get  function call arguments
     if let Some(func_calls) = response_message.tool_calls {
         for call in &func_calls {
             if call.function.name == "get_current_time" {
@@ -57,6 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
+        // 结合函数调用的结果,重新请求
         let request = GenerationParamBuilder::default()
             .model("qwen-turbo".to_string())
             .input(InputBuilder::default().messages(messages.clone()).build()?)
@@ -64,6 +66,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let response = client.generation().call(request).await?;
 
+        // 返回最终总结结果
         dbg!(&response.output.text);
         
     }
