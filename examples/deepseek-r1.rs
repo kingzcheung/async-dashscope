@@ -31,9 +31,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let response = client.generation().call(request).await?;
     // dbg!(&response);
-    // 思考过程
-    println!("{:?}",&response.output.choices[0].message.reasoning_content);
-    // 最终答案
-    println!("{}", response.output.choices[0].message.content);
+
+    if let Some(choices) = response.output.choices {
+        for choice in choices {
+            // 思考过程
+            println!(
+                "思考过程：{}",
+                choice.message.reasoning_content.unwrap_or_default()
+            );
+            // 最终答案
+            println!("最终答案: {}", choice.message.content);
+        }
+    }
+
     Ok(())
 }

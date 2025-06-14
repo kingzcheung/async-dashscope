@@ -1,4 +1,3 @@
-pub use super::common::*;
 use crate::{client::Client, error::DashScopeError};
 use crate::{error::Result, operation::validate::check_model_parameters};
 pub use output::*;
@@ -33,6 +32,8 @@ impl<'a> Generation<'a> {
                 "When stream is true, use Generation::call_stream".into(),
             ));
         }
+
+        // dbg!(&request);
 
         // 检查参数
         let c = check_model_parameters(&request.model);

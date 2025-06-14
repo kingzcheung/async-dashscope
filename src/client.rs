@@ -128,7 +128,8 @@ impl Client {
         let bytes = self.execute_raw(request_maker).await?;
 
         // bytes to string
-        // let s = String::from_utf8(bytes.to_vec()).unwrap();
+        let s = String::from_utf8(bytes.to_vec()).unwrap();
+        dbg!(s);
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;

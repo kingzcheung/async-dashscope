@@ -1,11 +1,11 @@
-use std::pin::Pin;
+use std::{pin::Pin, str};
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tokio_stream::Stream;
 
-use crate::error::DashScopeError;
+use crate::{error::DashScopeError, operation::common::Usage};
 
-use super::Usage;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
@@ -19,7 +19,33 @@ pub struct Message {
 
     // 思考内容
     #[serde(rename = "reasoning_content")]
-    pub reasoning_content:Option<String>,
+    pub reasoning_content: Option<String>,
+
+    // 函数调用
+    pub function_call: Option<Value>,
+    #[serde(rename = "tool_calls")]
+    pub tool_calls: Option<Vec<ToolCall>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ToolCall {
+    #[serde(rename = "id")]
+    pub id: String,
+
+    #[serde(rename = "type")]
+    pub type_: String,
+
+    #[serde(rename = "index")]
+    pub index: i32,
+
+    #[serde(rename = "function")]
+    pub function: Function,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Function {
+    pub name: String,
+    pub arguments: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -40,7 +66,7 @@ pub struct Choices {
 pub struct Output {
     /// 模型的输出信息。当result_format为message时返回choices参数。
     #[serde(rename = "choices")]
-    pub choices: Vec<Choices>,
+    pub choices: Option<Vec<Choices>>,
 
     /// 模型生成的回复。当设置输入参数result_format为text时将回复内容返回到该字段。
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut stream = client.generation().call_stream(request).await?;
     while let Some(response) = stream.next().await {
         match response {
-            Ok(go) => go.output.choices.iter().for_each(|c| {
+            Ok(go) => go.output.choices.unwrap().iter().for_each(|c| {
                 print!("{}", c.message.content);
             }),
             Err(e) => eprintln!("{}", e),

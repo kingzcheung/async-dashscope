@@ -22,6 +22,10 @@ pub struct Parameters {
     // function call
     pub tools: Option<Vec<FunctionCall>>,
 
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub parallel_tool_calls:Option<bool>,
+
     // 限制思考长度
     // 该参数仅支持Qwen3 模型设定。
     #[builder(setter(into, strip_option))]
@@ -44,11 +48,23 @@ pub struct Parameters {
     pub enable_thinking: Option<bool>,
 }
 
+impl ParametersBuilder {
+    pub fn functions<V>(&mut self, value: V) -> &mut Self
+    where
+        V: Into<Vec<FunctionCall>>,
+    {
+        self.tools(value)
+    }
+}
+
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct FunctionCall {
     #[builder(setter(into, strip_option))]
     #[serde(rename = "type")]
     pub typ: Option<String>,
+
+    #[builder(setter(into, strip_option))]
+    #[serde(rename = "function")]
     pub function: Option<Function>,
 }
 
@@ -56,7 +72,11 @@ pub struct FunctionCall {
 #[builder(setter(into, strip_option))]
 pub struct Function {
     name: String,
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
     description: Option<String>,
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
     parameters: Option<FunctionParameters>,
 }
 

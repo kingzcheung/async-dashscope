@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("思考过程:::");
     while let Some(response) = stream.next().await {
         match response {
-            Ok(go) => go.output.choices.iter().for_each(|c| {
+            Ok(go) => go.output.choices.unwrap().iter().for_each(|c| {
                 if let Some(reasoning_content) = &c.message.reasoning_content {
                     print!("{}", reasoning_content);
                 } 
