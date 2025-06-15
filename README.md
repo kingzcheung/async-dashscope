@@ -33,6 +33,8 @@ async-dashscope = "*"
 
 #### 使用示例
 
+> 更多的示例请看 [examples](./examples)
+
 api_key 通过环境变量传入：
 
 ```shell
@@ -105,7 +107,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     json!({"text": "这是什么?"})
                 ]
             ).build()?
-    
+  
         ]).build()?
     )
         .build()?;
