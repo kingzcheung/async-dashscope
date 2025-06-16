@@ -85,7 +85,7 @@ impl Client {
         &self,
         path: &str,
         request: I,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, DashScopeError>> + Send>>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, DashScopeError>> + Send>>, DashScopeError>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -95,10 +95,9 @@ impl Client {
             .post(self.config.url(path))
             .headers(self.config.headers())
             .json(&request)
-            .eventsource()
-            .unwrap();
+            .eventsource()?;
 
-        stream(event_source).await
+        Ok(stream(event_source).await)
     }
 
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, DashScopeError>
@@ -106,7 +105,6 @@ impl Client {
         I: Serialize + Debug,
         O: DeserializeOwned,
     {
-        // dbg!(&request);
         let request_maker = || async {
             Ok(self
                 .http_client
@@ -126,10 +124,6 @@ impl Client {
         Fut: core::future::Future<Output = Result<reqwest::Request, DashScopeError>>,
     {
         let bytes = self.execute_raw(request_maker).await?;
-
-        // bytes to string
-        let s = String::from_utf8(bytes.to_vec()).unwrap();
-        dbg!(s);
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
@@ -161,8 +155,6 @@ impl Client {
 
             // Deserialize response body from either error object or actual response object
             if !status.is_success() {
-                // bytes to string
-
                 let api_error: ApiError = serde_json::from_slice(bytes.as_ref())
                     .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
                     .map_err(backoff::Error::Permanent)?;

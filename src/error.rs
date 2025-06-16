@@ -1,11 +1,16 @@
 use std::fmt::Display;
 
+use reqwest_eventsource::CannotCloneRequestError;
 use serde::Deserialize;
 
 #[derive(Debug, thiserror::Error)]
 pub enum DashScopeError {
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
+
+    #[error("event source error: {0}")]
+    EventSource(#[from] CannotCloneRequestError),
+
     #[error("failed to deserialize api response: {source}")]
     JSONDeserialize {
         source: serde_json::Error,
@@ -17,6 +22,8 @@ pub enum DashScopeError {
     InvalidArgument(String),
     #[error("stream error:{0}")]
     StreamError(String),
+    #[error("response body contains invalid UTF-8: {0}")]
+    InvalidUtf8(#[from] std::string::FromUtf8Error),
 }
 
 #[derive(Debug, Deserialize, Clone)]

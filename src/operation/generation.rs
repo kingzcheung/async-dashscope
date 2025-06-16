@@ -6,6 +6,8 @@ pub use param::{GenerationParam, GenerationParamBuilder, InputBuilder, MessageBu
 mod output;
 mod param;
 
+const GENERATION_PATH: &str = "/services/aigc/text-generation/generation";
+
 pub struct Generation<'a> {
     client: &'a Client,
 }
@@ -27,22 +29,18 @@ impl<'a> Generation<'a> {
     /// 返回生成输出的结果，如果请求配置了stream且为true，则返回错误
     pub async fn call(&self, request: GenerationParam) -> Result<GenerationOutput> {
         // 检查请求是否启用了流式生成，如果是，则返回错误
-        if request.stream.is_some() && request.stream.unwrap() {
+        if request.stream == Some(true) {
             return Err(DashScopeError::InvalidArgument(
                 "When stream is true, use Generation::call_stream".into(),
             ));
         }
-
-        // dbg!(&request);
 
         // 检查参数
         let c = check_model_parameters(&request.model);
         c.validate(&request)?;
 
         // 发送POST请求到生成服务，并等待结果
-        self.client
-            .post("/services/aigc/text-generation/generation", request)
-            .await
+        self.client.post(GENERATION_PATH, request).await
     }
 
     /// 异步调用生成流函数
@@ -69,7 +67,7 @@ impl<'a> Generation<'a> {
         mut request: GenerationParam,
     ) -> Result<GenerationOutputStream> {
         // 检查 `request` 中的 `stream` 属性，如果明确为 `false`，则返回错误
-        if request.stream.is_some() && !request.stream.unwrap() {
+        if request.stream == Some(false) {
             return Err(DashScopeError::InvalidArgument(
                 "When stream is false, use Generation::call".into(),
             ));
@@ -83,9 +81,6 @@ impl<'a> Generation<'a> {
         c.validate(&request)?;
 
         // 通过客户端发起 POST 请求，使用修改后的 `request` 对象，并等待异步响应
-        Ok(self
-            .client
-            .post_stream("/services/aigc/text-generation/generation", request)
-            .await)
+        self.client.post_stream(GENERATION_PATH, request).await
     }
 }
