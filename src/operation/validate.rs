@@ -1,6 +1,6 @@
 use crate::error::Result;
 use crate::{error::DashScopeError, operation::generation::GenerationParam};
-pub trait ModelValidation {
+pub trait ModelValidation: Send + Sync {
     fn validate(&self, params: &GenerationParam) -> Result<()>;
 }
 
@@ -29,12 +29,10 @@ impl ModelValidation for DeepSeekV1 {
     }
 }
 
-
-pub(crate) fn check_model_parameters(model: &str) -> Box<dyn ModelValidation> { 
-
+pub(crate) fn check_model_parameters(model: &str) -> Box<dyn ModelValidation> {
     match model {
         "deepseek-r1" => Box::new(DeepSeekV1),
 
-        _ =>  Box::new(DefaultValidation),
+        _ => Box::new(DefaultValidation),
     }
 }
