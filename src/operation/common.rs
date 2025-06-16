@@ -12,7 +12,11 @@ pub struct Parameters {
     #[builder(setter(strip_option))]
     #[builder(default=None)]
     pub translation_options: Option<TranslationOptions>,
-    //增量式流式输出
+    // 增量式流式输出
+    #[deprecated(
+        since = "0.5.0",
+        note = "Stream control is now unified under the top-level `stream` parameter in request objects. This parameter will be ignored."
+    )]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub incremental_output: Option<bool>,
@@ -24,7 +28,7 @@ pub struct Parameters {
 
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    pub parallel_tool_calls:Option<bool>,
+    pub parallel_tool_calls: Option<bool>,
 
     // 限制思考长度
     // 该参数仅支持Qwen3 模型设定。
@@ -49,11 +53,11 @@ pub struct Parameters {
 
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    pub response_format: Option<ResponseFormat>
+    pub response_format: Option<ResponseFormat>,
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
-pub struct ResponseFormat{
+pub struct ResponseFormat {
     #[builder(setter(into, strip_option))]
     #[serde(rename = "type")]
     pub type_: String,

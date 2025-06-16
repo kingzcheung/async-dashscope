@@ -1,6 +1,9 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
+use crate::operation::common::Parameters;
+use crate::operation::request::RequestTrait;
+
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct EmbeddingsParam {
     /// 调用模型名称，可以选择text-embedding-v1，text-embedding-v2或者text-embedding-v3
@@ -46,4 +49,15 @@ pub struct EmbeddingsInput {
 pub struct EmbeddingsParameters {
     /// 向量维度，可选值：768、1024、1536、2048
     dimension: u16,
+}
+
+impl RequestTrait for EmbeddingsParam {
+    fn model(&self) -> &str {
+        &self.model
+    }
+
+    fn parameters(&self) -> Option<&Parameters> {
+        // EmbeddingsParam has its own `EmbeddingsParameters`, not the common `Parameters`.
+        None
+    }
 }
