@@ -29,6 +29,8 @@ backoff = { version = "0.4.0", features = ["tokio"] }
 tokio = { version = "1.45.1", features = ["full"] }
 tokio-stream = "0.1.17"
 tokio-util = { version = "0.7.15", features = ["codec", "io-util"] }
+async-stream = "0.3.6"
+url = "2.5.4"
 
 
 [dev-dependencies]
