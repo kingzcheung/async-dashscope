@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::Client;
+use crate::{operation::validate::check_model_parameters, Client};
 pub use output::*;
 pub use param::*;
 
@@ -30,6 +30,10 @@ impl<'a> Embeddings<'a> {
     /// 如果操作成功，返回一个包含嵌入向量和其他相关信息的结构体
     /// 如果操作失败，返回一个错误类型，便于错误处理和调试
     pub async fn call(&self, request: param::EmbeddingsParam) -> Result<output::EmbeddingsOutput> {
+        // Validate parameters before making the request.
+        let validator = check_model_parameters(&request.model);
+        validator.validate(&request)?;
+
         // 发送POST请求到指定的服务端点，并传递请求参数
         // 该行代码是异步执行的，允许在等待网络操作时继续执行其他任务，提高程序效率
         self.client

@@ -6,8 +6,11 @@ use serde::Deserialize;
 pub enum DashScopeError {
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
-    #[error("failed to deserialize api response: {0}")]
-    JSONDeserialize(serde_json::Error),
+    #[error("failed to deserialize api response: {source}")]
+    JSONDeserialize {
+        source: serde_json::Error,
+        raw_response: Vec<u8>,
+    },
     #[error("{0}")]
     ApiError(ApiError),
     #[error("invalid argument:{0}")]
@@ -47,7 +50,10 @@ pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> D
         "failed deserialization of: {}",
         String::from_utf8_lossy(bytes)
     );
-    DashScopeError::JSONDeserialize(e)
+    DashScopeError::JSONDeserialize {
+        source: e,
+        raw_response: bytes.to_vec(),
+    }
 }
 
 pub type Result<T> = std::result::Result<T, DashScopeError>;

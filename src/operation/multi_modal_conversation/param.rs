@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::operation::common::Parameters;
+use crate::operation::request::RequestTrait;
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct MultiModalConversationParam {
@@ -31,4 +32,26 @@ pub struct Message {
     role: String,
     #[serde(rename = "content")]
     contents: Vec<Value>,
+}
+
+impl Message {
+    /// Creates a new `Message` with a single content item.
+    ///
+    /// A convenience method for creating a message without the builder pattern.
+    pub fn new(role: impl Into<String>, content: Value) -> Self {
+        Self {
+            role: role.into(),
+            contents: vec![content],
+        }
+    }
+}
+
+impl RequestTrait for MultiModalConversationParam {
+    fn model(&self) -> &str {
+        &self.model
+    }
+
+    fn parameters(&self) -> Option<&Parameters> {
+        self.parameters.as_ref()
+    }
 }

@@ -2,7 +2,7 @@ use std::{fmt::Debug, pin::Pin};
 
 use bytes::Bytes;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt as _};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use tokio_stream::{Stream, StreamExt as _};
 
 use crate::{
@@ -199,56 +199,53 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(DashScopeError::StreamError(e.to_string()))) {
+                    if tx
+                        .send(Err(DashScopeError::StreamError(e.to_string())))
+                        .is_err()
+                    {
                         // rx dropped
                         break;
                     }
                 }
-                Ok(event) => match event {
-                    Event::Message(message) => {
-                        #[derive(Deserialize, Debug)]
-                        struct Result {
-                            output: Output,
-                        }
-                        #[derive(Deserialize, Debug)]
-                        struct Output {
-                            choices: Vec<Choices>,
-                        }
-                        #[derive(Deserialize, Debug)]
-                        struct Choices {
-                            finish_reason: Option<String>,
-                        }
-
-                        let r = match serde_json::from_str::<Result>(&message.data) {
-                            Ok(r) => r,
-                            Err(e) => {
-                                if let Err(_e) = tx.send(Err(map_deserialization_error(
-                                    e,
-                                    message.data.as_bytes(),
-                                ))) {
-                                    break;
-                                }
-                                continue;
-                            }
-                        };
-                        if let Some(finish_reason) = r.output.choices[0].finish_reason.clone() {
-                            if finish_reason == "stop" {
+                Ok(Event::Open) => continue,
+                Ok(Event::Message(message)) => {
+                    // First, deserialize to a generic JSON Value to inspect it without failing.
+                    let json_value: serde_json::Value = match serde_json::from_str(&message.data) {
+                        Ok(val) => val,
+                        Err(e) => {
+                            if tx
+                                .send(Err(map_deserialization_error(e, message.data.as_bytes())))
+                                .is_err()
+                            {
+                                // rx dropped
                                 break;
                             }
+                            continue;
                         }
+                    };
 
-                        let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => Err(map_deserialization_error(e, message.data.as_bytes())),
-                            Ok(output) => Ok(output),
-                        };
+                    // Now, deserialize from the `Value` to the target type `O`.
+                    let response = match serde_json::from_value::<O>(json_value.clone()) {
+                        Ok(output) => Ok(output),
+                        Err(e) => Err(map_deserialization_error(e, message.data.as_bytes())),
+                    };
 
-                        if let Err(_e) = tx.send(response) {
-                            // rx dropped
-                            break;
-                        }
+                    // Send the result, whether it's Ok or Err.
+                    if tx.send(response).is_err() {
+                        // rx dropped
+                        break;
                     }
-                    Event::Open => continue,
-                },
+
+                    // Check for finish reason after sending the message.
+                    // This ensures the final message with "stop" is delivered.
+                    let finish_reason = json_value
+                        .pointer("/output/choices/0/finish_reason")
+                        .and_then(|v| v.as_str());
+
+                    if let Some("stop") = finish_reason {
+                        break;
+                    }
+                }
             }
         }
 
