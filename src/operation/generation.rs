@@ -78,6 +78,10 @@ impl<'a> Generation<'a> {
         // 确保 `stream` 属性被设置为 `true`，即使它之前是 `None`
         request.stream = Some(true);
 
+        // 检查参数（保持与 call 方法的一致性）
+        let c = check_model_parameters(&request.model);
+        c.validate(&request)?;
+
         // 通过客户端发起 POST 请求，使用修改后的 `request` 对象，并等待异步响应
         Ok(self
             .client
