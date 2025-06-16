@@ -1,5 +1,6 @@
 use std::{fmt::Debug, pin::Pin};
 
+use async_stream::try_stream;
 use bytes::Bytes;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt as _};
 use serde::{de::DeserializeOwned, Serialize};
@@ -185,19 +186,11 @@ pub(crate) async fn stream<O>(
 where
     O: DeserializeOwned + std::marker::Send + 'static,
 {
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-
-    tokio::spawn(async move {
+    let stream = try_stream! {
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if tx
-                        .send(Err(DashScopeError::StreamError(e.to_string())))
-                        .is_err()
-                    {
-                        // rx dropped
-                        break;
-                    }
+                    Err(DashScopeError::StreamError(e.to_string()))?;
                 }
                 Ok(Event::Open) => continue,
                 Ok(Event::Message(message)) => {
@@ -205,28 +198,17 @@ where
                     let json_value: serde_json::Value = match serde_json::from_str(&message.data) {
                         Ok(val) => val,
                         Err(e) => {
-                            if tx
-                                .send(Err(map_deserialization_error(e, message.data.as_bytes())))
-                                .is_err()
-                            {
-                                // rx dropped
-                                break;
-                            }
+                            Err(map_deserialization_error(e, message.data.as_bytes()))?;
                             continue;
                         }
                     };
 
                     // Now, deserialize from the `Value` to the target type `O`.
-                    let response = match serde_json::from_value::<O>(json_value.clone()) {
-                        Ok(output) => Ok(output),
-                        Err(e) => Err(map_deserialization_error(e, message.data.as_bytes())),
-                    };
+                    let response = serde_json::from_value::<O>(json_value.clone())
+                        .map_err(|e| map_deserialization_error(e, message.data.as_bytes()))?;
 
-                    // Send the result, whether it's Ok or Err.
-                    if tx.send(response).is_err() {
-                        // rx dropped
-                        break;
-                    }
+                    // Yield the successful message
+                    yield response;
 
                     // Check for finish reason after sending the message.
                     // This ensures the final message with "stop" is delivered.
@@ -240,11 +222,10 @@ where
                 }
             }
         }
-
         event_source.close();
-    });
+    };
 
-    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+    Box::pin(stream)
 }
 
 #[cfg(test)]
