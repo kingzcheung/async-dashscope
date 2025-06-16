@@ -6,6 +6,8 @@ pub use param::*;
 mod output;
 mod param;
 
+const EMBEDDINGS_PATH: &str = "/services/embeddings/text-embedding/text-embedding";
+
 pub struct Embeddings<'a> {
     client: &'a Client,
 }
@@ -36,11 +38,6 @@ impl<'a> Embeddings<'a> {
 
         // 发送POST请求到指定的服务端点，并传递请求参数
         // 该行代码是异步执行的，允许在等待网络操作时继续执行其他任务，提高程序效率
-        self.client
-            .post(
-                "/services/embeddings/text-embedding/text-embedding",
-                request,
-            )
-            .await
+        self.client.post(EMBEDDINGS_PATH, request).await
     }
 }

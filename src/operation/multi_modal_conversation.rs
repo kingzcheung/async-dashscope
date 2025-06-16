@@ -9,6 +9,8 @@ pub use param::{
 mod output;
 mod param;
 
+const MULTIMODAL_CONVERSATION_PATH: &str = "/services/aigc/multimodal-generation/generation";
+
 pub struct MultiModalConversation<'a> {
     client: &'a Client,
 }
@@ -45,7 +47,7 @@ impl<'a> MultiModalConversation<'a> {
 
         // 发起非流式多模态对话请求。
         self.client
-            .post("/services/aigc/multimodal-generation/generation", request)
+            .post(MULTIMODAL_CONVERSATION_PATH, request)
             .await
     }
 
@@ -81,9 +83,8 @@ impl<'a> MultiModalConversation<'a> {
         validator.validate(&request)?;
 
         // 发起流式请求并返回结果流
-        Ok(self
-            .client
-            .post_stream("/services/aigc/multimodal-generation/generation", request)
-            .await)
+        self.client
+            .post_stream(MULTIMODAL_CONVERSATION_PATH, request)
+            .await
     }
 }
