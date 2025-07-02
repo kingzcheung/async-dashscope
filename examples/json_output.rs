@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let person: Person = serde_json::from_str(&choice.message.content)?;
 
-            println!("{:?}", person);
+            println!("{person:?}");
 
             assert_eq!(person.name, "刘五");
             assert_eq!(person.age, "34岁");

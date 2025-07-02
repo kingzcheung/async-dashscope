@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(go) => go.output.choices.unwrap().iter().for_each(|c| {
                 print!("{}", c.message.content);
             }),
-            Err(e) => eprintln!("{}", e),
+            Err(e) => eprintln!("{e}"),
         }
     }
     Ok(())

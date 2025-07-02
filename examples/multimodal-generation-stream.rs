@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(r) => {
                 println!("{:?}", r.output.choices[0].message.content);
             },
-            Err(e) => println!("{}", e),
+            Err(e) => println!("{e}"),
         }
     }
 

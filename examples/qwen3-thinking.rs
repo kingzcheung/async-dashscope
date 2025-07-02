@@ -41,10 +41,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match response {
             Ok(go) => go.output.choices.unwrap().iter().for_each(|c| {
                 if let Some(reasoning_content) = &c.message.reasoning_content {
-                    print!("{}", reasoning_content);
+                    print!("{reasoning_content}");
                 } 
             }),
-            Err(e) => eprintln!("{}", e),
+            Err(e) => eprintln!("{e}"),
         }
     }
     Ok(())
