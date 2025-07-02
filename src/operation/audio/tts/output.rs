@@ -69,6 +69,48 @@ impl Audio {
             .map_err(|_| AudioOutputError::DataDecodeError)
     }
 
+    #[cfg(feature = "wav-decoder")]
+    pub fn to_wav(&self,sample_rate: u32, num_channels: u16, bits_per_sample: u16) -> Result<Vec<u8>, AudioOutputError> {
+        use std::io::Cursor;
+        use hound::{WavSpec, WavWriter};
+
+        let pcm_data = self.to_vec()?;
+        let mut buffer = Cursor::new(Vec::new());
+        let spec = WavSpec {
+            channels: num_channels,
+            sample_rate,
+            bits_per_sample,
+            sample_format: hound::SampleFormat::Int,
+        };
+
+        let mut writer = WavWriter::new(&mut buffer, spec).map_err(|e| {
+            eprintln!("WAV writer error: {e}");
+            AudioOutputError::DataDecodeError
+        })?;
+
+        // 根据位深度写入PCM数据
+        match bits_per_sample {
+            16 => {
+                // 将字节转换为i16样本
+                for chunk in pcm_data.chunks_exact(2) {
+                    let sample = i16::from_le_bytes([chunk[0], chunk[1]]);
+                    writer.write_sample(sample).map_err(|_| AudioOutputError::DataDecodeError)?;
+                }
+            }
+            8 => {
+                // 直接写入u8样本
+                for &sample in &pcm_data {
+                    writer.write_sample(sample as i8).map_err(|_| AudioOutputError::DataDecodeError)?;
+                }
+            }
+            _ => return Err(AudioOutputError::DataDecodeError),
+        }
+
+        // 完成写入并返回WAV数据
+        writer.finalize().map_err(|_| AudioOutputError::DataDecodeError)?;
+        Ok(buffer.into_inner())
+    }
+
     pub fn bytes(&self) -> Result<Bytes, AudioOutputError> {
         Ok(Bytes::copy_from_slice(&self.to_vec()?))
     }

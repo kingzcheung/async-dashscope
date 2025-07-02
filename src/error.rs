@@ -37,10 +37,10 @@ impl Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut parts = Vec::new();
         if let Some(code) = &self.code {
-            parts.push(format!("code: {}", code));
+            parts.push(format!("code: {code}"));
         }
         if let Some(request_id) = &self.request_id {
-            parts.push(format!("request_id: {}", request_id));
+            parts.push(format!("request_id: {request_id}"));
         }
         write!(f, "{}", parts.join(" "))
     }

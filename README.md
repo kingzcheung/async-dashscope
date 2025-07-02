@@ -14,6 +14,7 @@
 - **DeepSeek**:  支持百炼平台的 deepseek 模型的调用
 - **深度思考**: 支持 qwen/deepseek 深度思考
 - **工具调用**: 支持qwen 系列的工具调用(deepseek 不支持)
+- **音频合成**： 支持 qwen-tts 音频合成
 - **结构化输出**
 
 #### 安装

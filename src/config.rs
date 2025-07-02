@@ -105,7 +105,7 @@ mod tests {
         let instance = ConfigBuilder::default().api_key("test").build().unwrap();
         assert_eq!(
             instance.url("/test"),
-            format!("{}/test", DASHSCOPE_API_BASE).as_str()
+            format!("{DASHSCOPE_API_BASE}/test").as_str()
         );
     }
 

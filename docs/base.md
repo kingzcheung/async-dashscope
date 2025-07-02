@@ -240,3 +240,57 @@ let mut messages = vec![MessageBuilder::default()
         
     }
 ```
+
+### 音频合成
+
+音频合成调用的是 `qwen-tts` 模型。
+
+合成音频格式只支持两种：
+
+- `wav`
+- 流式输出 Base64 编码的 pcm
+
+> 如果您需要解码流式输出 Base64 编码的 pcm，需要添加`wav-decoder` 特性:
+
+```toml
+async-dashscope = { version = "*", features = ["wav-decoder"] }
+```
+
+```rust
+
+let request = TextToSpeechParamBuilder::default()
+        .model("qwen-tts")
+        .input(
+            TextToSpeechInputBuilder::default()
+                .text("那我来给大家推荐一款T恤，这款呢真的是超级好看，这个颜色呢很显气质，而且呢也是搭配的绝佳单品，大家可以闭眼入，真的是非常好看，对身材的包容性也很好，不管啥身材的宝宝呢，穿上去都是很好看的。推荐宝宝们下单哦。")
+                .voice("Cherry")
+                .build()?,
+        )
+        .stream(true)
+        .build()?;
+
+    let client = Client::new();
+
+    let mut stream = client.audio().tts_stream(request).await?;
+    
+    let mut i = 0;
+    while let Some(response) = stream.next().await {
+        match response {
+            Ok(go) => {
+                // println!("{}",go.output.audio.data);
+                println!("{:?}", go.output.audio.data);
+                // 这是 pcm 数据，并不是 wav 数据
+                // go.output.audio.bytes()?;
+                // 这是 wav 数据
+                let data = go.output.audio.to_wav(16000, 1, 16)?;
+                std::fs::write(format!("{i}.wav"), data)?;
+                i += 1;
+                if go.is_finished() {
+                    go.download("output.wav").await?;
+                    break;
+                }
+            },
+            Err(e) => eprintln!("{e}"),
+        }
+    }
+```
