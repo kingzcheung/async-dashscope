@@ -71,6 +71,11 @@ impl Client {
         crate::operation::multi_modal_conversation::MultiModalConversation::new(self)
     }
 
+    /// 获取音频处理功能
+    pub fn audio(&self) -> crate::operation::audio::Audio<'_> {
+        crate::operation::audio::Audio::new(self)
+    }
+
     /// 获取文本嵌入表示
     ///
     /// 此函数提供了一个接口，用于将文本转换为嵌入表示

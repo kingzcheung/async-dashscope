@@ -169,8 +169,24 @@ pub struct Usage {
     /// 输入 Token 的细粒度分类。
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_tokens_details: Option<PromptTokensDetails>,
+
+    /// Audio 输入的 Token 消耗信息
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_tokens_details: Option<InputTokensDetails>,
+    /// Audio 输出的 Token 消耗信息
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_tokens_details: Option<OutputTokensDetails>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InputTokensDetails {
+    text_tokens: Option<i32>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OutputTokensDetails {
+    audio_tokens: Option<i32>,
+    text_tokens: Option<i32>,
+}
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PromptTokensDetails {
     /// 命中 Cache 的 Token 数。Context Cache 详情请参见上下文缓存[（Context Cache）](https://help.aliyun.com/zh/model-studio/user-guide/context-cache?spm=a2c4g.11186623.0.0.37a0453aeh9s1L)。

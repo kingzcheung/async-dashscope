@@ -2,6 +2,7 @@
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation - image-generation
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation - 音频理解、视觉理解
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation  - 录音文件识别
+// https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation  - 语音合成
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis - 创意海报生成API参考
 
 use derive_builder::Builder;
