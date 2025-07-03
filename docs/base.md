@@ -256,6 +256,16 @@ let mut messages = vec![MessageBuilder::default()
 async-dashscope = { version = "*", features = ["wav-decoder"] }
 ```
 
+voice 列表：
+
+- `Cherry`: 女性
+- `Chelsie`: 女性
+- `Ethan`: 男性
+- `Serena`: 女性
+- `Dylan`: 男性，北京话
+- `Jada`: 女性，吴语话
+- `Sunny`: 女性，四川话
+
 ```rust
 
 let request = TextToSpeechParamBuilder::default()
