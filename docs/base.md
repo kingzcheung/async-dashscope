@@ -74,6 +74,8 @@ let request = GenerationParamBuilder::default()
 
 ### 多模态生成
 
+>  ⚠️注意：和官方的 python 版本 sdk（内置了 oss 上传功能） 不一样，这里的 image 参数不支持本地文件，需要自行解决上传问题。
+
 ```rust
 let request = MultiModalConversationParamBuilder::default()
         .model("qwen-vl-max")
@@ -127,7 +129,9 @@ let request = GenerationParamBuilder::default()
     let response = client.generation().call(request).await?;
     dbg!(response);
 ```
+
 ### 推理模型(qwen and deepseek r1)
+
 ```rust
    let request = GenerationParamBuilder::default()
         .model("deepseek-r1".to_string())
@@ -237,7 +241,7 @@ let mut messages = vec![MessageBuilder::default()
 
         // 返回最终总结结果
         dbg!(&response.output.text);
-        
+      
     }
 ```
 
@@ -250,7 +254,7 @@ let mut messages = vec![MessageBuilder::default()
 - `wav`
 - 流式输出 Base64 编码的 pcm
 
-> 如果您需要解码流式输出 Base64 编码的 pcm，需要添加`wav-decoder` 特性:
+> 如果您需要解码流式输出 Base64 编码的 pcm，需要添加 `wav-decoder` 特性:
 
 ```toml
 async-dashscope = { version = "*", features = ["wav-decoder"] }
@@ -282,7 +286,7 @@ let request = TextToSpeechParamBuilder::default()
     let client = Client::new();
 
     let mut stream = client.audio().tts_stream(request).await?;
-    
+  
     let mut i = 0;
     while let Some(response) = stream.next().await {
         match response {
