@@ -3,7 +3,7 @@ use crate::{error::DashScopeError, operation::validate::check_model_parameters, 
 pub use output::*;
 pub use param::{
     InputBuilder, MessageBuilder, MultiModalConversationParam, MultiModalConversationParamBuilder,
-    MultiModalConversationParamBuilderError,
+    MultiModalConversationParamBuilderError,Element
 };
 
 mod output;

@@ -17,6 +17,8 @@ pub enum DashScopeError {
         raw_response: Vec<u8>,
     },
     #[error("{0}")]
+    ElementError(String),
+    #[error("{0}")]
     ApiError(ApiError),
     #[error("invalid argument:{0}")]
     InvalidArgument(String),

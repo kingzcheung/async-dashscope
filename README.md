@@ -104,8 +104,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .role("user")
             .contents(
                 vec![
-                    json!({"image": "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"}),
-                    json!({"text": "这是什么?"})
+                    json!({"image": "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"}).try_into()?,
+                    json!({"text": "这是什么?"}).try_into()?
                 ]
             ).build()?
   

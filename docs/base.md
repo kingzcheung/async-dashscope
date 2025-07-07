@@ -74,7 +74,7 @@ let request = GenerationParamBuilder::default()
 
 ### 多模态生成
 
->  ⚠️注意：和官方的 python 版本 sdk（内置了 oss 上传功能） 不一样，这里的 image 参数不支持本地文件，需要自行解决上传问题。
+> ⚠️注意：和官方的 python 版本 sdk（内置了 oss 上传功能） 不一样，这里的 image 参数不支持本地文件，需要自行解决上传问题。
 
 ```rust
 let request = MultiModalConversationParamBuilder::default()
@@ -84,8 +84,8 @@ let request = MultiModalConversationParamBuilder::default()
             .role("user")
             .contents(
                 vec![
-                    json!({"image": "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"}),
-                    json!({"text": "这是什么?"})
+                    json!({"image": "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"}).try_into()?,
+                    json!({"text": "这是什么?"}).try_into()?
                 ]
             ).build()?
         ]).build()?
@@ -241,7 +241,7 @@ let mut messages = vec![MessageBuilder::default()
 
         // 返回最终总结结果
         dbg!(&response.output.text);
-      
+    
     }
 ```
 
