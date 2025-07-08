@@ -2,8 +2,8 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::operation::common::Parameters;
-use crate::operation::request::RequestTrait;
+use crate::{operation::common::Parameters, oss_util};
+use crate::{operation::request::RequestTrait, oss_util::is_valid_url};
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct MultiModalConversationParam {
@@ -19,6 +19,47 @@ pub struct MultiModalConversationParam {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub parameters: Option<Parameters>,
+}
+
+impl MultiModalConversationParam {
+    pub(crate) async fn upload_file_to_oss(
+        mut self,
+        api_key: &str,
+    ) -> Result<Self, crate::error::DashScopeError> {
+        for message in self.input.messages.iter_mut() {
+            for content in message.contents.iter_mut() {
+                match content {
+                    Element::Image(url) => {
+                        if !is_valid_url(url) {
+                            let oss_url =
+                                oss_util::upload_file_and_get_url(api_key, &self.model, url)
+                                    .await?;
+                            *content = Element::Image(oss_url);
+                        }
+                    }
+                    Element::Audio(url) => {
+                        if !is_valid_url(url) {
+                            let oss_url =
+                                oss_util::upload_file_and_get_url(api_key, &self.model, url)
+                                    .await?;
+                            *content = Element::Audio(oss_url);
+                        }
+                    }
+                    Element::Video(url) => {
+                        if !is_valid_url(url) {
+                            let oss_url =
+                                oss_util::upload_file_and_get_url(api_key, &self.model, url)
+                                    .await?;
+                            *content = Element::Video(oss_url);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        Ok(self)
+    }
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]

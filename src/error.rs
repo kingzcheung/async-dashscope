@@ -26,6 +26,9 @@ pub enum DashScopeError {
     StreamError(String),
     #[error("response body contains invalid UTF-8: {0}")]
     InvalidUtf8(#[from] std::string::FromUtf8Error),
+
+    #[error("upload error: {0}")]
+    UploadError(String),
 }
 
 #[derive(Debug, Deserialize, Clone)]

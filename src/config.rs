@@ -52,6 +52,10 @@ impl Config {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert("Content-Type", "application/json".parse().unwrap());
         headers.insert(
+            "X-DashScope-OssResourceResolve",
+            "enable".parse().unwrap(),
+        );
+        headers.insert(
             AUTHORIZATION,
             format!("Bearer {}", self.api_key.expose_secret())
                 .parse()
@@ -62,6 +66,10 @@ impl Config {
 
     pub fn set_api_key(&mut self, api_key: SecretString) {
         self.api_key = api_key;
+    }
+    
+    pub fn api_key(&self) -> &SecretString {
+        &self.api_key
     }
 }
 

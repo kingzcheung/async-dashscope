@@ -74,17 +74,23 @@ let request = GenerationParamBuilder::default()
 
 ### 多模态生成
 
-> ⚠️注意：和官方的 python 版本 sdk（内置了 oss 上传功能） 不一样，这里的 image 参数不支持本地文件，需要自行解决上传问题。
+> ⚠️ image 参数支持本地文件，但是需要注意路径和权限问题。当使用本地文件时，sdk 和官方 sdk 行为一样，会把文件先上传到阿里云百炼提供的**免费**临时存储空间。见： [https://help.aliyun.com/zh/model-studio/get-temporary-file-url?spm=a2c4g.11186623.0.0.674a65c5wRTJbw](https://help.aliyun.com/zh/model-studio/get-temporary-file-url?spm=a2c4g.11186623.0.0.674a65c5wRTJbw)
 
 ```rust
+let file_path = format!("{cargo_dir}/test_data/dog_and_girl.jpeg");
+
 let request = MultiModalConversationParamBuilder::default()
         .model("qwen-vl-max")
         .input(InputBuilder::default().messages(vec![
             MessageBuilder::default()
             .role("user")
             .contents(
+                // vec![
+            	//      Element::Image("https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg".into()),
+            	//      Element::Text("这是什么?".into())
+            	// ]
                 vec![
-                    json!({"image": "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"}).try_into()?,
+                    json!({"image": file_path}).try_into()?,
                     json!({"text": "这是什么?"}).try_into()?
                 ]
             ).build()?
@@ -241,7 +247,7 @@ let mut messages = vec![MessageBuilder::default()
 
         // 返回最终总结结果
         dbg!(&response.output.text);
-    
+  
     }
 ```
 

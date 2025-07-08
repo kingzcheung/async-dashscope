@@ -1,10 +1,11 @@
 use crate::error::Result;
-use crate::{error::DashScopeError, operation::validate::check_model_parameters, Client};
+use crate::{Client, error::DashScopeError, operation::validate::check_model_parameters};
 pub use output::*;
 pub use param::{
-    InputBuilder, MessageBuilder, MultiModalConversationParam, MultiModalConversationParamBuilder,
-    MultiModalConversationParamBuilderError,Element
+    Element, InputBuilder, MessageBuilder, MultiModalConversationParam,
+    MultiModalConversationParamBuilder, MultiModalConversationParamBuilderError,
 };
+use secrecy::ExposeSecret;
 
 mod output;
 mod param;
@@ -44,6 +45,10 @@ impl<'a> MultiModalConversation<'a> {
         // Validate parameters before making the request.
         let validator = check_model_parameters(&request.model);
         validator.validate(&request)?;
+
+        let request = request
+            .upload_file_to_oss(self.client.config().api_key().expose_secret())
+            .await?;
 
         // 发起非流式多模态对话请求。
         self.client

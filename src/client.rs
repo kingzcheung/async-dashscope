@@ -183,6 +183,10 @@ impl Client {
         })
         .await
     }
+    
+    pub fn config(&self) -> &Config {
+        &self.config
+    }
 }
 
 pub(crate) async fn stream<O>(
