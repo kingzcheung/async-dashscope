@@ -1,7 +1,10 @@
 use crate::{client::Client, error::DashScopeError};
 use crate::{error::Result, operation::validate::check_model_parameters};
 pub use output::*;
-pub use param::{GenerationParam, GenerationParamBuilder, InputBuilder, MessageBuilder};
+pub use param::{
+    AssistantMessageBuilder, GenerationParam, GenerationParamBuilder, InputBuilder, MessageBuilder,
+    SystemMessageBuilder, ToolMessageBuilder, UserMessageBuilder,
+};
 
 mod output;
 mod param;

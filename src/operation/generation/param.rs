@@ -144,25 +144,37 @@ impl MessageBuilder {
 /// 模型的目标或角色。如果设置系统消息，请放在messages列表的第一位。
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct SystemMessage {
-    #[builder(setter(into))]
+    #[builder(setter(into), default = "\"system\".to_string()")]
     pub role: String,
     #[builder(setter(into))]
     pub content: String,
+}
+
+impl From<SystemMessage> for Message {
+    fn from(value: SystemMessage) -> Self {
+        Self::System(value)
+    }
 }
 
 /// 用户发送给模型的消息
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct UserMessage {
-    #[builder(setter(into))]
+    #[builder(setter(into), default = "\"user\".to_string()")]
     pub role: String,
     #[builder(setter(into))]
     pub content: String,
 }
 
+impl From<UserMessage> for Message {
+    fn from(value: UserMessage) -> Self {
+        Self::User(value)
+    }
+}
+
 /// 模型对用户消息的回复
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct AssistantMessage {
-    #[builder(setter(into))]
+    #[builder(setter(into), default = "\"assistant\".to_string()")]
     pub role: String,
     #[builder(setter(into))]
     pub content: String,
@@ -175,6 +187,12 @@ pub struct AssistantMessage {
     /// 在发起 Function Calling后，模型回复的要调用的工具和调用工具时需要的参数。包含一个或多个对象。由上一轮模型响应的tool_calls字段获得。
     #[builder(setter(into, strip_option))]
     pub tool_calls: Option<Vec<ToolCall>>,
+}
+
+impl From<AssistantMessage> for Message {
+    fn from(value: AssistantMessage) -> Self {
+        Self::Assistant(value)
+    }
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
@@ -206,12 +224,18 @@ pub struct Function {
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct ToolMessage {
-    #[builder(setter(into))]
+    #[builder(setter(into), default = "\"tool\".to_string()")]
     pub role: String,
     #[builder(setter(into))]
     pub content: String,
     #[builder(setter(into))]
     pub tool_call_id: Option<String>,
+}
+
+impl From<ToolMessage> for Message {
+    fn from(value: ToolMessage) -> Self {
+        Self::Tool(value)
+    }
 }
 
 impl RequestTrait for GenerationParam {
