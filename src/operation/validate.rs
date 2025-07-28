@@ -10,7 +10,11 @@ pub enum ModelValidator {
     /// The default validation, which performs no special checks.
     Default,
     /// Validation specific to the `deepseek-r1` model.
-    DeepSeekV1,
+    NotSupportResultFormatText,
+    /// validation enable_thinking
+    NotSupportEnableThinking,
+    NotSupportToolCall,
+    NotSupportJsonOutput,
 }
 
 impl ModelValidator {
@@ -30,7 +34,7 @@ impl ModelValidator {
                 // No specific validation rules for the default case.
                 Ok(())
             }
-            ModelValidator::DeepSeekV1 => {
+            ModelValidator::NotSupportResultFormatText => {
                 // The deepseek-r1 model does not support `result_format: "text"`.
                 if let Some(p) = params.parameters() {
                     if let Some(format) = &p.result_format {
@@ -39,6 +43,41 @@ impl ModelValidator {
                                 "deepseek-r1 does not support result_format = text".into(),
                             ));
                         }
+                    }
+                }
+                Ok(())
+            }
+            ModelValidator::NotSupportEnableThinking => {
+                if let Some(p) = params.parameters() {
+                    if let Some(thinking) = p.enable_thinking {
+                        if thinking {
+                            return Err(DashScopeError::InvalidArgument(
+                                "The model does not support enable_thinking = true".into(),
+                            ));
+                        }
+                    }
+                }
+                Ok(())
+            }
+            ModelValidator::NotSupportJsonOutput => {
+                if let Some(p) = params.parameters() {
+                    if let Some(response_format) = p.response_format.as_ref() {
+                        if response_format.type_ == "json_object" {
+                            return Err(DashScopeError::InvalidArgument(
+                                "The model does not support response_format=json_object".into(),
+                            ));
+                        }
+                    }
+                }
+                Ok(())
+            }
+
+            ModelValidator::NotSupportToolCall => {
+                if let Some(p) = params.parameters() {
+                    if p.tools.is_some() {
+                        return Err(DashScopeError::InvalidArgument(
+                            "The model does not support tool call".into(),
+                        ));
                     }
                 }
                 Ok(())
@@ -56,9 +95,19 @@ impl ModelValidator {
 /// # Returns
 ///
 /// A `ModelValidator` enum variant corresponding to the required validation strategy.
-pub(crate) fn check_model_parameters(model: &str) -> ModelValidator {
+pub(crate) fn check_model_parameters(model: &str) -> Vec<ModelValidator> {
     match model {
-        "deepseek-r1" => ModelValidator::DeepSeekV1,
-        _ => ModelValidator::Default,
+        "deepseek-r1" => vec![
+            ModelValidator::NotSupportResultFormatText,
+            ModelValidator::NotSupportJsonOutput,
+        ],
+        "qwen-vl" | "qwen-audio" => vec![ModelValidator::NotSupportToolCall],
+        "Moonshot-Kimi-K2-Instruct" => vec![
+            ModelValidator::NotSupportEnableThinking,
+            ModelValidator::NotSupportResultFormatText,
+            ModelValidator::NotSupportJsonOutput,
+            ModelValidator::NotSupportToolCall,
+        ],
+        _ => vec![ModelValidator::Default],
     }
 }

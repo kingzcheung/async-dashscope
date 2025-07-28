@@ -23,6 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .parameters(
             ParametersBuilder::default()
                 .result_format("message")
+                .enable_thinking(true)
                 .build()?,
         )
         .build()?;

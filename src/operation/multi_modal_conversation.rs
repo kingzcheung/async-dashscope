@@ -43,8 +43,10 @@ impl<'a> MultiModalConversation<'a> {
         }
 
         // Validate parameters before making the request.
-        let validator = check_model_parameters(&request.model);
-        validator.validate(&request)?;
+        let validators = check_model_parameters(&request.model);
+        for valid in validators {
+            valid.validate(&request)?;
+        }
 
         let request = request
             .upload_file_to_oss(self.client.config().api_key().expose_secret())
@@ -84,8 +86,10 @@ impl<'a> MultiModalConversation<'a> {
         request.stream = Some(true);
 
         // Validate parameters before making the request.
-        let validator = check_model_parameters(&request.model);
-        validator.validate(&request)?;
+        let validators = check_model_parameters(&request.model);
+        for valid in validators {
+            valid.validate(&request)?;
+        }
 
         // 发起流式请求并返回结果流
         self.client

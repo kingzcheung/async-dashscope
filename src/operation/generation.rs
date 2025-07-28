@@ -39,8 +39,10 @@ impl<'a> Generation<'a> {
         }
 
         // 检查参数
-        let c = check_model_parameters(&request.model);
-        c.validate(&request)?;
+        let validators = check_model_parameters(&request.model);
+        for valid in validators {
+            valid.validate(&request)?;
+        }
 
         // 发送POST请求到生成服务，并等待结果
         self.client.post(GENERATION_PATH, request).await
@@ -80,8 +82,10 @@ impl<'a> Generation<'a> {
         request.stream = Some(true);
 
         // 检查参数（保持与 call 方法的一致性）
-        let c = check_model_parameters(&request.model);
-        c.validate(&request)?;
+        let validators = check_model_parameters(&request.model);
+        for valid in validators {
+            valid.validate(&request)?;
+        }
 
         // 通过客户端发起 POST 请求，使用修改后的 `request` 对象，并等待异步响应
         self.client.post_stream(GENERATION_PATH, request).await
