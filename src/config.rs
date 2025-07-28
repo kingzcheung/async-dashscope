@@ -5,6 +5,8 @@
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation  - 语音合成
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis - 创意海报生成API参考
 
+// todo: Qwen3-Coder 暂不支持 dashscope 的基于 Partial Mode 的代码补全功能
+
 use derive_builder::Builder;
 use reqwest::header::AUTHORIZATION;
 use secrecy::{ExposeSecret as _, SecretString};
