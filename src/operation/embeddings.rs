@@ -33,8 +33,10 @@ impl<'a> Embeddings<'a> {
     /// 如果操作失败，返回一个错误类型，便于错误处理和调试
     pub async fn call(&self, request: param::EmbeddingsParam) -> Result<output::EmbeddingsOutput> {
         // Validate parameters before making the request.
-        let validator = check_model_parameters(&request.model);
-        validator.validate(&request)?;
+        let validators = check_model_parameters(&request.model);
+        for valid in validators {
+            valid.validate(&request)?;
+        }
 
         // 发送POST请求到指定的服务端点，并传递请求参数
         // 该行代码是异步执行的，允许在等待网络操作时继续执行其他任务，提高程序效率

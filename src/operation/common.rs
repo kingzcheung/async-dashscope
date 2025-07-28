@@ -6,9 +6,12 @@ use serde_json::Value;
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
 pub struct Parameters {
+    /// 返回数据的格式。推荐优先设置为"message"
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub result_format: Option<String>,
+
+    /// 当您使用翻译模型时需要配置的翻译参数。
     #[builder(setter(strip_option))]
     #[builder(default=None)]
     pub translation_options: Option<TranslationOptions>,
@@ -26,6 +29,7 @@ pub struct Parameters {
     // function call
     pub tools: Option<Vec<FunctionCall>>,
 
+    /// 是否开启并行工具调用。参数为true时开启，为false时不开启。并行工具调用详情请参见：[并行工具调用](https://help.aliyun.com/zh/model-studio/qwen-function-calling#cb6b5c484bt4x)。
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub parallel_tool_calls: Option<bool>,
@@ -42,11 +46,12 @@ pub struct Parameters {
     #[builder(default=None)]
     pub enable_search: Option<bool>,
 
+    /// 联网搜索的策略。仅当enable_search为true时生效。
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub search_options: Option<SearchOptions>,
 
-    // 只支持 qwen3, 对 QwQ 与 DeepSeek-R1 模型无效。
+    /// 只支持 qwen3, 对 QwQ 与 DeepSeek-R1 模型无效。
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub enable_thinking: Option<bool>,
@@ -54,6 +59,32 @@ pub struct Parameters {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub response_format: Option<ResponseFormat>,
+
+    /// 模型生成时连续序列中的重复度。提高repetition_penalty时可以降低模型生成的重复度，1.0表示不做惩罚。没有严格的取值范围，只要大于0即可。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    repetition_penalty: Option<f64>,
+
+    /// 控制模型生成文本时的内容重复度。
+    /// 
+    /// 取值范围：[-2.0, 2.0]。正数会减少重复度，负数会增加重复度。
+    /// 
+    /// 适用场景：
+    /// - 较高的presence_penalty适用于要求多样性、趣味性或创造性的场景，如创意写作或头脑风暴。
+    /// - 较低的presence_penalty适用于要求一致性或专业术语的场景，如技术文档或其他正式文档。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    presence_penalty: Option<f64>,
+
+    /// 是否提高输入图片的默认Token上限。输入图片的默认Token上限为1280，配置为true时输入图片的Token上限为16384。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    vl_high_resolution_images: Option<bool>,
+
+    /// 是否返回图像缩放后的尺寸。模型会对输入的图像进行缩放处理，配置为 True 时会返回图像缩放后的高度和宽度，开启流式输出时，该信息在最后一个数据块（chunk）中返回。支持Qwen-VL模型。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    vl_enable_image_hw_output: Option<bool>,
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
