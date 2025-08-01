@@ -239,11 +239,13 @@ impl From<ToolMessage> for Message {
 }
 
 impl RequestTrait for GenerationParam {
+
+    type P = Parameters;
     fn model(&self) -> &str {
         &self.model
     }
 
-    fn parameters(&self) -> Option<&Parameters> {
+    fn parameters(&self) -> Option<&Self::P> {
         self.parameters.as_ref()
     }
 }

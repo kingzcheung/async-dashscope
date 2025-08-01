@@ -31,33 +31,45 @@ pub struct EmbeddingsInput {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    texts: Option<Vec<String>>,
+    pub texts: Option<Vec<String>>,
     /// 图片地址或者图片 base64
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    image: Option<String>,
+    pub image: Option<String>,
     /// 视频地址
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
-    video: Option<String>,
+    pub video: Option<String>,
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
-
 pub struct EmbeddingsParameters {
     /// 向量维度，可选值：768、1024、1536、2048
-    dimension: u16,
+    /// 用于用户指定输出向量维度，只适用于text-embedding-v3与text-embedding-v4模型。指定的值只能在2048（仅适用于text-embedding-v4）、1536（仅适用于text-embedding-v4）1024、768、512、256、128或64八个值之间选取，默认值为1024。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub dimension: Option<u16>,
+    /// 用户指定输出离散向量表示只适用于text_embedding_v3与text_embedding_v4模型，取值在dense、sparse、dense&sparse之间，默认取dense，只输出连续向量。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub output_type: Option<String>,
+    /// 添加自定义任务说明，仅在使用 text-embedding-v4 模型且 text_type 为 query 时生效。建议使用英文撰写，通常可带来约 1%–5% 的效果提升。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub instruct: Option<String>,
 }
 
 impl RequestTrait for EmbeddingsParam {
+    type P = EmbeddingsParameters;
     fn model(&self) -> &str {
         &self.model
     }
 
-    fn parameters(&self) -> Option<&Parameters> {
-        // EmbeddingsParam has its own `EmbeddingsParameters`, not the common `Parameters`.
-        None
+    fn parameters(&self) -> Option<&Self::P> {
+        self.parameters.as_ref()
     }
+
+    
 }

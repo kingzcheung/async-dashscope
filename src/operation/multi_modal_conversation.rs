@@ -1,4 +1,4 @@
-use crate::error::Result;
+use crate::{error::Result, operation::validate::Validator};
 use crate::{Client, error::DashScopeError, operation::validate::check_model_parameters};
 pub use output::*;
 pub use param::{
