@@ -1,7 +1,6 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::operation::common::Parameters;
 use crate::operation::request::RequestTrait;
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
