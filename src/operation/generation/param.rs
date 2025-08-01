@@ -239,7 +239,6 @@ impl From<ToolMessage> for Message {
 }
 
 impl RequestTrait for GenerationParam {
-
     type P = Parameters;
     fn model(&self) -> &str {
         &self.model
