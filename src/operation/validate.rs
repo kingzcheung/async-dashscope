@@ -1,5 +1,8 @@
-use crate::error::{DashScopeError, Result};
 use crate::operation::request::RequestTrait;
+use crate::{
+    error::{DashScopeError, Result},
+    operation::{common::Parameters, embeddings::EmbeddingsParameters},
+};
 
 /// Defines the validation strategy for a given model.
 ///
@@ -15,20 +18,58 @@ pub enum ModelValidator {
     NotSupportEnableThinking,
     NotSupportToolCall,
     NotSupportJsonOutput,
+    // dimensions 不匹配
+    DimensionNotMatch,
 }
 
-impl ModelValidator {
-    /// Validates the request parameters based on the selected model strategy.
-    ///
-    /// # Arguments
-    ///
-    /// * `params` - A type that implements `RequestTrait`, providing access to the model name and parameters.
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(())` if the parameters are valid.
-    /// * `Err(DashScopeError)` if the parameters are invalid for the given model.
-    pub fn validate<R: RequestTrait + ?Sized>(&self, params: &R) -> Result<()> {
+pub trait Validator<T> {
+    /// 验证请求的参数
+    fn validate<R: RequestTrait<P = T> + ?Sized>(&self, params: &R) -> Result<()>;
+}
+
+impl Validator<EmbeddingsParameters> for ModelValidator {
+    fn validate<R: RequestTrait<P = EmbeddingsParameters> + ?Sized>(
+        &self,
+        params: &R,
+    ) -> Result<()> {
+        match self {
+            ModelValidator::DimensionNotMatch => {
+                // text-embedding-v4 向量维度 只能是以下值: 2,048、1,536、1,024（默认）、768、512、256、128、64
+                // text-embedding-v3 向量维度 只能是以下值: 1,024（默认）、768、512、256、128或64
+                // text-embedding-v2 向量维度 只能是1,536
+                // text-embedding-v1 向量维度 只能是1,536
+
+                if let Some(p) = params.parameters() {
+                    let valid_dimensions = match params.model() {
+                        "text-embedding-v1" | "text-embedding-v2" => {
+                            vec![1536]
+                        }
+                        "text-embedding-v3" => {
+                            vec![1024, 768, 512, 256, 128, 64]
+                        }
+                        "text-embedding-v4" => {
+                            vec![2048, 1536, 1024, 768, 512, 256, 128, 64]
+                        }
+                        _ => vec![], // 未知模型不验证
+                    };
+                    if let Some(dimension) = p.dimension {
+                        if !valid_dimensions.contains(&dimension) {
+                            return Err(DashScopeError::InvalidArgument(format!(
+                                "Invalid dimension: {} for model: {}",
+                                dimension,
+                                params.model()
+                            )));
+                        }
+                    }
+                }
+                Ok(())
+            }
+            _ => Ok(()),
+        }
+    }
+}
+impl Validator<Parameters> for ModelValidator {
+    fn validate<R: RequestTrait<P = Parameters> + ?Sized>(&self, params: &R) -> Result<()> {
         match self {
             ModelValidator::Default => {
                 // No specific validation rules for the default case.
@@ -82,6 +123,8 @@ impl ModelValidator {
                 }
                 Ok(())
             }
+
+            _ => Ok(()),
         }
     }
 }
@@ -108,6 +151,9 @@ pub(crate) fn check_model_parameters(model: &str) -> Vec<ModelValidator> {
             ModelValidator::NotSupportJsonOutput,
             ModelValidator::NotSupportToolCall,
         ],
+        "text-embedding-v4" | "text-embedding-v3" | "text-embedding-v2" | "text-embedding-v1" => {
+            vec![ModelValidator::DimensionNotMatch]
+        }
         _ => vec![ModelValidator::Default],
     }
 }
