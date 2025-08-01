@@ -1,4 +1,4 @@
-use crate::error::Result;
+use crate::{error::Result, operation::validate::Validator};
 use crate::{operation::validate::check_model_parameters, Client};
 pub use output::*;
 pub use param::*;

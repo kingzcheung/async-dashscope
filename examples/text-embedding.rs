@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv()?;
     let client = Client::new();
     let input = EmbeddingsParamBuilder::default()
-        .model("text-embedding-v3")
+        .model("text-embedding-v2")
         .input(
             EmbeddingsInputBuilder::default()
                 .texts(vec![
@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .parameters(
             EmbeddingsParametersBuilder::default()
-                .dimension(1024)
+                .dimension(1024u16)
                 .build()?,
         )
         .build()?;

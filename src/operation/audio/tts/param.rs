@@ -36,4 +36,6 @@ impl RequestTrait for TextToSpeechParam {
     fn parameters(&self) -> Option<&Parameters> {
         None
     }
+    
+    type P = Parameters;
 }
