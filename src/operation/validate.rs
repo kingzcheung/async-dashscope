@@ -151,6 +151,7 @@ pub(crate) fn check_model_parameters(model: &str) -> Vec<ModelValidator> {
             ModelValidator::NotSupportJsonOutput,
             ModelValidator::NotSupportToolCall,
         ],
+
         "text-embedding-v4" | "text-embedding-v3" | "text-embedding-v2" | "text-embedding-v1" => {
             vec![ModelValidator::DimensionNotMatch]
         }
