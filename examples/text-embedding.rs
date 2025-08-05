@@ -1,8 +1,8 @@
 use async_dashscope::{
+    Client,
     operation::embeddings::{
         EmbeddingsInputBuilder, EmbeddingsParamBuilder, EmbeddingsParametersBuilder,
     },
-    Client,
 };
 
 #[tokio::main]
@@ -23,10 +23,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .parameters(
             EmbeddingsParametersBuilder::default()
-                .dimension(1024u16)
+                .dimension(1536u16)
                 .build()?,
         )
         .build()?;
+
     let output = client.text_embeddings().call(input).await?;
 
     dbg!(output);

@@ -69,6 +69,4 @@ impl RequestTrait for EmbeddingsParam {
     fn parameters(&self) -> Option<&Self::P> {
         self.parameters.as_ref()
     }
-
-    
 }
