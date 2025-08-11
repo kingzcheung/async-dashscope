@@ -1,7 +1,7 @@
 use async_dashscope::Client;
 
 pub fn init_client() -> Client {
-    dotenvy::dotenv().unwrap();
+    let _ = dotenvy::dotenv();
 
     let client = Client::default();
 
