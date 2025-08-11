@@ -16,6 +16,9 @@ pub const DASHSCOPE_API_BASE: &str = "https://dashscope.aliyuncs.com/api/v1";
 /// # Config
 ///
 /// ```rust
+/// use async_dashscope::config::ConfigBuilder;
+/// use async_dashscope::Client;
+/// 
 /// let conf = ConfigBuilder::default()
 ///         // optional, default is: https://dashscope.aliyuncs.com/api/v1
 ///         .api_base("http://localhost:8080")

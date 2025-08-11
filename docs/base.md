@@ -9,10 +9,32 @@
 cargo add async-dashscope
 ```
 
+> 注意：要运行本文档中的示例代码，您需要设置 `DASHSCOPE_API_KEY` 环境变量。
+
+您可以通过以下方式设置环境变量：
+
+```bash
+export DASHSCOPE_API_KEY="your-api-key-here"
+```
+
+或者在程序中直接设置：
+
+```rust
+use async_dashscope::Client;
+
+let client = Client::new().with_api_key("your-api-key-here".to_string());
+```
+
 ### 文本生成
 
 ```rust
-let request = GenerationParamBuilder::default()
+use async_dashscope::operation::generation::{GenerationParamBuilder, InputBuilder, MessageBuilder};
+use async_dashscope::operation::common::ParametersBuilder;
+use async_dashscope::Client;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let request = GenerationParamBuilder::default()
         .model("qwen-turbo".to_string())
         .input(
             InputBuilder::default()
@@ -20,20 +42,26 @@ let request = GenerationParamBuilder::default()
                     .role("user")
                     .content("你是谁")
                     .build()
-                    .unwrap()])
-                .build()?,
+                    ?])
+                .build()
+                ?,
         )
         .parameters(
             ParametersBuilder::default()
-                .result_format("message")
-                .build()?,
+                .result_format("message".to_string())
+                .build()
+                ?,
         )
-        .build()?;
+        .build()
+        ?;
 
     let client = Client::default();
 
-    let response = client.generation().call(request).await?;
-    dbg!(response);
+    // Note: This example requires a valid API key to run
+    // let response = client.generation().call(request).await?;
+    // dbg!(response);
+    Ok(())
+}
 ```
 
 ### 流式生成
@@ -262,7 +290,7 @@ let mut messages = vec![MessageBuilder::default()
 
 > 如果您需要解码流式输出 Base64 编码的 pcm，需要添加 `wav-decoder` 特性:
 
-```toml
+``toml
 async-dashscope = { version = "*", features = ["wav-decoder"] }
 ```
 
