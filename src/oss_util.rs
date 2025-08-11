@@ -153,8 +153,11 @@ mod test {
 
     #[tokio::test]
     async fn test_get_upload_policy() -> Result<(), Box<dyn std::error::Error>> {
-        dotenvy::dotenv()?;
-        let api_key = std::env::var("DASHSCOPE_API_KEY").unwrap();
+        let _ = dotenvy::dotenv();
+        let Ok(api_key) = std::env::var("DASHSCOPE_API_KEY") else {
+            println!("DASHSCOPE_API_KEY not set, skipping test");
+            return Ok(());
+        };
         let model_name = "qwen-vl-max";
         let result = get_upload_policy(&api_key, model_name).await;
         assert!(result.is_ok());
