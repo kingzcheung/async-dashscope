@@ -85,6 +85,27 @@ pub struct Parameters {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     vl_enable_image_hw_output: Option<bool>,
+
+    /// 是否在图像右下角添加 "Qwen-Image" 水印。默认为 false。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    watermark:Option<bool>,
+
+    /// 反向提示词，用来描述不希望在画面中看到的内容，可以对画面进行限制。
+    /// 支持中英文，长度上限500个字符，每个汉字/字母占一个字符，超过部分会自动截断。
+    /// 
+    /// 示例：低分辨率、错误、最差质量、低质量、残缺、多余的手指、比例不良等。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    negative_prompt: Option<String>,
+
+    /// 随机数种子，取值范围[0,2147483647]。
+    /// 使用相同的seed参数值可使生成内容保持相对稳定。若不提供，算法将自动使用随机数种子。
+    /// 
+    /// **注意**：模型生成过程具有概率性，即使使用相同的seed，也不能保证每次生成结果完全一致。
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    seed: Option<i32>,
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]
