@@ -9,6 +9,8 @@ use crate::{error::DashScopeError, operation::common::Usage};
 pub struct Content {
     #[serde(rename = "text")]
     pub text: Option<String>,
+    #[serde(rename = "image")]
+    pub image: Option<String>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {

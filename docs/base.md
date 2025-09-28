@@ -342,3 +342,7 @@ let request = TextToSpeechParamBuilder::default()
         }
     }
 ```
+
+### 图片编辑
+
+见 [qwen-image-edit](docs/qwen-image-edit.md)
