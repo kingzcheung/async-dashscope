@@ -8,7 +8,11 @@
 DASHSCOPE_API_BASE=https://dashscope-intl.aliyuncs.com/api/v1
 ```
 
-调用示例：
+以编辑这张图片为例：
+
+![result](../test_data/dog_and_girl.jpeg)
+
+调用示例
 
 ```rust
 let request = MultiModalConversationParamBuilder::default()
