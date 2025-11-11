@@ -76,6 +76,18 @@ impl Client {
         crate::operation::audio::Audio::new(self)
     }
 
+    /// 创建一个新的 Image2Image 操作实例
+    ///
+    /// 返回一个可用于执行图像到图像转换操作的 Image2Image 构建器
+    ///
+    /// # Examples
+    /// ```
+    /// let client = Client::new();
+    /// let image2image = client.image2image();
+    /// ```
+    ///
+    /// # Errors
+    /// 此方法本身不会返回错误，但后续操作可能会返回错误
     pub fn image2image(&self) -> crate::operation::image2image::Image2Image<'_> {
         crate::operation::image2image::Image2Image::new(self)
     }
@@ -84,6 +96,10 @@ impl Client {
         self.http_client.clone()
     }
 
+    /// 创建一个新的任务操作实例
+    ///
+    /// # 返回
+    /// 返回一个绑定到当前客户端的 `Task` 实例，用于执行任务相关操作
     pub fn task(&self) -> crate::operation::task::Task<'_> {
         crate::operation::task::Task::new(self)
     }
