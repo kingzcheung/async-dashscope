@@ -154,6 +154,9 @@ pub(crate) fn check_model_parameters(model: &str) -> Vec<ModelValidator> {
         "text-embedding-v4" | "text-embedding-v3" | "text-embedding-v2" | "text-embedding-v1" => {
             vec![ModelValidator::DimensionNotMatch]
         }
+        "qwen-mt-image" => {
+            vec![ModelValidator::Default]
+        }
         _ => vec![ModelValidator::Default],
     }
 }
