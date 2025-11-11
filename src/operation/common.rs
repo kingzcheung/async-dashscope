@@ -244,3 +244,21 @@ pub struct PromptTokensDetails {
     /// 命中 Cache 的 Token 数。Context Cache 详情请参见上下文缓存[（Context Cache）](https://help.aliyun.com/zh/model-studio/user-guide/context-cache?spm=a2c4g.11186623.0.0.37a0453aeh9s1L)。
     pub prompt_tokens: Option<i32>,
 }
+
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum TaskStatus {
+    #[serde(rename = "PENDING")]
+    Pending,
+    #[serde(rename = "RUNNING")]
+    Running,
+    #[serde(rename = "SUCCEEDED")]
+    Succeeded,
+    #[serde(rename = "FAILED")]
+    Failed,
+    #[serde(rename = "CANCELED")]
+    Canceled,
+    #[serde(rename = "UNKNOWN")]
+    Unknown,
+}

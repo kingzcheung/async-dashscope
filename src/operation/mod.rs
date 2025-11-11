@@ -5,3 +5,5 @@ pub mod multi_modal_conversation;
 pub mod request;
 pub mod validate;
 pub mod audio;
+pub mod image2image;
+pub mod task;

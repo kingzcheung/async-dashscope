@@ -29,6 +29,9 @@ pub enum DashScopeError {
 
     #[error("upload error: {0}")]
     UploadError(String),
+    
+    #[error("timeout error: {0}")]
+    TimeoutError(String),
 }
 
 #[derive(Debug, Deserialize, Clone)]

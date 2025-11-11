@@ -6,6 +6,7 @@
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis - 创意海报生成API参考
 
 // https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation  新加坡
+// https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/image-synthesis 图像翻译
 
 // todo: Qwen3-Coder 暂不支持 dashscope 的基于 Partial Mode 的代码补全功能
 

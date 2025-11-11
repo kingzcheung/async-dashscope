@@ -3,12 +3,12 @@ use std::{fmt::Debug, pin::Pin};
 use async_stream::try_stream;
 use bytes::Bytes;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt as _};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use tokio_stream::{Stream, StreamExt as _};
 
 use crate::{
     config::Config,
-    error::{map_deserialization_error, ApiError, DashScopeError},
+    error::{ApiError, DashScopeError, map_deserialization_error},
 };
 
 #[derive(Debug, Default, Clone)]
@@ -76,6 +76,18 @@ impl Client {
         crate::operation::audio::Audio::new(self)
     }
 
+    pub fn image2image(&self) -> crate::operation::image2image::Image2Image<'_> {
+        crate::operation::image2image::Image2Image::new(self)
+    }
+
+    pub fn http_client(&self) -> reqwest::Client {
+        self.http_client.clone()
+    }
+
+    pub fn task(&self) -> crate::operation::task::Task<'_> {
+        crate::operation::task::Task::new(self)
+    }
+
     /// 获取文本嵌入表示
     ///
     /// 此函数提供了一个接口，用于将文本转换为嵌入表示
@@ -111,11 +123,40 @@ impl Client {
         I: Serialize + Debug,
         O: DeserializeOwned,
     {
+        self.post_with_headers(path, request, self.config().headers())
+            .await
+    }
+
+    /// 发送带有自定义请求头的 POST 请求
+    ///
+    /// # 参数
+    /// * `path` - API 路径
+    /// * `request` - 要发送的请求体，需要实现 Serialize 和 Debug trait
+    /// * `headers` - 自定义请求头
+    ///
+    /// # 返回值
+    /// 返回解析后的响应数据，类型由调用方指定
+    ///
+    /// # Errors
+    /// 返回 DashScopeError 如果请求失败或响应解析失败
+    ///
+    /// # 注意事项
+    /// 此函数是 crate 内部使用的工具函数，不对外公开
+    pub(crate) async fn post_with_headers<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        headers: reqwest::header::HeaderMap,
+    ) -> Result<O, DashScopeError>
+    where
+        I: Serialize + Debug,
+        O: DeserializeOwned,
+    {
         let request_maker = || async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
-                .headers(self.config.headers())
+                .headers(headers.clone())
                 .json(&request)
                 .build()?)
         };
@@ -183,7 +224,7 @@ impl Client {
         })
         .await
     }
-    
+
     pub fn config(&self) -> &Config {
         &self.config
     }
