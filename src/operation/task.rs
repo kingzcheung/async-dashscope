@@ -1,34 +1,12 @@
-use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tokio::time::sleep;
-
+use output::*;
 use crate::error::{DashScopeError, Result};
 use crate::{Client, operation::common::TaskStatus};
 const TASK_PATH: &str = "/tasks";
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TaskOutput {
-    pub task_id: String,
-    pub task_status: TaskStatus,
-    pub submit_time: String,
-    pub scheduled_time: Option<String>,
-    pub end_time: Option<String>,
-    pub image_url: Option<String>,
-    pub code: Option<String>,
-    pub message: Option<String>,
-}
+pub mod output;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TaskResult {
-    pub request_id: String,
-    pub output: TaskOutput,
-    pub usage: Option<ImageUsage>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ImageUsage {
-    pub image_count: u32,
-}
 
 pub struct Task<'a> {
     client: &'a Client,
@@ -102,26 +80,30 @@ impl<'a> Task<'a> {
         max_attempts: u32,
     ) -> Result<TaskResult> {
         for attempt in 1..=max_attempts {
-            println!("第 {} 次轮询...", attempt);
+            // println!("第 {} 次轮询...", attempt);
 
             match self.query(task_id).await {
                 Ok(result) => {
                     let task_status = &result.output.task_status;
+                    // println!("当前任务状态: {:?}", task_status);
 
                     // 如果任务完成或失败，返回结果
                     match task_status {
                         TaskStatus::Succeeded => {
+                            // println!("任务执行完成，退出轮询");
                             return Ok(result);
                         }
                         TaskStatus::Failed => {
+                            // println!("任务执行失败，退出轮询");
                             return Ok(result);
                         }
                         TaskStatus::Pending | TaskStatus::Running => {
                             // 继续轮询
+                            println!("任务仍在进行中，等待 {} 秒后继续轮询...", interval);
                             sleep(Duration::from_secs(interval)).await;
                         }
                         TaskStatus::Canceled | TaskStatus::Unknown => {
-                            sleep(Duration::from_secs(interval)).await;
+                            return Ok(result);
                         }
                     }
                 }

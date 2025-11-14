@@ -92,6 +92,20 @@ impl Client {
         crate::operation::image2image::Image2Image::new(self)
     }
 
+    /// 创建一个新的文本转图像操作实例
+    ///
+    /// # 返回
+    /// 返回一个 `Text2Image` 操作构建器，用于配置和执行文本转图像请求
+    ///
+    /// # 示例
+    /// ```
+    /// let client = Client::new();
+    /// let text2image = client.text2image();
+    /// ```
+    pub fn text2image(&self) -> crate::operation::text2image::Text2Image<'_> {
+        crate::operation::text2image::Text2Image::new(self)
+    }
+
     pub fn http_client(&self) -> reqwest::Client {
         self.http_client.clone()
     }

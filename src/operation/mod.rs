@@ -7,3 +7,4 @@ pub mod validate;
 pub mod audio;
 pub mod image2image;
 pub mod task;
+pub mod text2image;
