@@ -1,12 +1,11 @@
-use std::time::Duration;
-use tokio::time::sleep;
-use output::*;
 use crate::error::{DashScopeError, Result};
 use crate::{Client, operation::common::TaskStatus};
+use output::*;
+use std::time::Duration;
+use tokio::time::sleep;
 const TASK_PATH: &str = "/tasks";
 
 pub mod output;
-
 
 pub struct Task<'a> {
     client: &'a Client,
@@ -137,6 +136,9 @@ impl<'a> Task<'a> {
                         }
                     }
                 }
+            }
+            if attempt > max_attempts {
+                break;
             }
         }
 
