@@ -135,13 +135,27 @@ impl Client {
         request: I,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<O, DashScopeError>> + Send>>, DashScopeError>
     where
-        I: Serialize,
+        I: Serialize + Debug,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        self.post_stream_with_headers(path, request, self.config.headers())
+            .await
+    }
+
+    pub(crate) async fn post_stream_with_headers<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        headers: reqwest::header::HeaderMap,
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, DashScopeError>> + Send>>, DashScopeError>
+    where
+        I: Serialize + Debug,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
         let event_source = self
             .http_client
             .post(self.config.url(path))
-            .headers(self.config.headers())
+            .headers(headers)
             .json(&request)
             .eventsource()?;
 

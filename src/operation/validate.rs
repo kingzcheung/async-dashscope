@@ -20,6 +20,7 @@ pub enum ModelValidator {
     NotSupportJsonOutput,
     // dimensions 不匹配
     DimensionNotMatch,
+    OnlyStreaming,
 }
 
 pub trait Validator<T> {
@@ -124,6 +125,19 @@ impl Validator<Parameters> for ModelValidator {
                 Ok(())
             }
 
+            ModelValidator::OnlyStreaming => {
+                if let Some(p) = params.parameters() {
+                    #[allow(deprecated)]
+                    if p.incremental_output == Some(false) {
+                        return Err(DashScopeError::InvalidArgument(
+                            "The model does not support streaming".into(),
+                        ));
+                    }
+                }
+
+                Ok(())
+            }
+
             _ => Ok(()),
         }
     }
@@ -156,6 +170,9 @@ pub(crate) fn check_model_parameters(model: &str) -> Vec<ModelValidator> {
         }
         "qwen-mt-image" => {
             vec![ModelValidator::Default]
+        }
+        "glm-4.6" | "glm-4.5" | "glm-4.5-air" => {
+            vec![ModelValidator::OnlyStreaming]
         }
         _ => vec![ModelValidator::Default],
     }

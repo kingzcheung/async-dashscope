@@ -87,7 +87,10 @@ impl<'a> Generation<'a> {
             valid.validate(&request)?;
         }
 
+        let mut headers = self.client.config().headers();
+        headers.insert("X-DashScope-SSE", "enable".parse().unwrap());
+
         // 通过客户端发起 POST 请求，使用修改后的 `request` 对象，并等待异步响应
-        self.client.post_stream(GENERATION_PATH, request).await
+        self.client.post_stream_with_headers(GENERATION_PATH, request, headers).await
     }
 }

@@ -1,9 +1,9 @@
 use async_dashscope::{
+    Client,
     operation::{
         common::ParametersBuilder,
         generation::{GenerationParamBuilder, InputBuilder, MessageBuilder},
     },
-    Client,
 };
 use tokio_stream::StreamExt;
 
@@ -11,14 +11,16 @@ use tokio_stream::StreamExt;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv()?;
     let request = GenerationParamBuilder::default()
-        .model("deepseek-r1".to_string())
+        .model("glm-4.6".to_string())
         .input(
             InputBuilder::default()
-                .messages(vec![MessageBuilder::default()
-                    .role("user")
-                    .content("你是谁? 请用5种语言回答我。")
-                    .build()
-                    .unwrap()])
+                .messages(vec![
+                    MessageBuilder::default()
+                        .role("user")
+                        .content("中国四大发明分别是什么？")
+                        .build()
+                        .unwrap(),
+                ])
                 .build()?,
         )
         .stream(true)
@@ -26,6 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ParametersBuilder::default()
                 .result_format("message")
                 .incremental_output(true)
+                .enable_thinking(true)
                 .build()?,
         )
         .build()?;
@@ -35,7 +38,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut stream = client.generation().call_stream(request).await?;
     // dbg!(&response);
     // 思考过程
-    println!("思考过程:::");
     while let Some(response) = stream.next().await {
         match response {
             Ok(go) => go.output.choices.unwrap().iter().for_each(|c| {
