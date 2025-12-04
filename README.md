@@ -13,6 +13,7 @@
 - **Embedding**：提供文本 embedding 功能，用于将文本转换为向量表示，便于后续的语义分析和相似度计算。
 - **DeepSeek**:  支持百炼平台的 deepseek 模型的调用
 - **Kimi**: 支持 Moonshot-Kimi-K2-Instruct
+- **GLM**: 支持 glm-4.6、glm-4.5、glm-4.5-air
 - **深度思考**: 支持 qwen/deepseek 深度思考
 - **工具调用**: 支持qwen 系列的工具调用(deepseek 不支持)
 - **音频合成**： 支持 qwen-tts 音频合成
