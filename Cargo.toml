@@ -16,10 +16,10 @@ derive_builder = "0.20.2"
 reqwest-eventsource = "0.6.0"
 thiserror = "2.0.17"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
-serde_json = "1.0.145"
-tracing = "0.1.41"
-bytes = "1.10.1"
-reqwest = { version = "0.12.24", features = [
+serde_json = "1.0.146"
+tracing = "0.1.44"
+bytes = "1.11.0"
+reqwest = { version = "0.12.28", features = [
   "json",
   "stream",
   "multipart",
