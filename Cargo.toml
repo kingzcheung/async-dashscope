@@ -1,6 +1,6 @@
 [package]
 name = "async-dashscope"
-version = "0.10.0"
+version = "0.10.1"
 edition = "2024"
 description = "A Rust client for DashScope API"
 repository = "https://github.com/kingzcheung/async-dashscope"

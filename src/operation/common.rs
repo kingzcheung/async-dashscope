@@ -228,6 +228,10 @@ pub struct Usage {
     /// Audio 输出的 Token 消耗信息
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output_tokens_details: Option<OutputTokensDetails>,
+
+    /// 输入文本的字符数。仅通义千问3-TTS-Flash模型返回该字段。
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub characters: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
