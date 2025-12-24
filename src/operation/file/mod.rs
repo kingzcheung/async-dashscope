@@ -4,6 +4,21 @@ use crate::{Client, error::DashScopeError};
 
 const FILE_PATH: &str = "files";
 
+pub enum FilePurpose {
+    FineTune,
+    FileExtract,
+    Batch,
+}
+impl FilePurpose {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            FilePurpose::FineTune => "fine-tune",
+            FilePurpose::FileExtract => "file-extract",
+            FilePurpose::Batch => "batch",
+        }
+    }
+}
+
 pub struct File<'a> {
     client: &'a Client,
 }
@@ -17,7 +32,7 @@ impl<'a> File<'a> {
     /// 
     /// # 参数
     /// 
-    /// * `files` - 要上传的文件路径列表
+    /// * `files` - 要上传的文件路径列表，内容和 prupose 强相关， 例如 fine-tune 用途只能上传 jsonl 文件
     /// * `purpose` - 文件用途，如 "fine-tune"
     /// * `descriptions` - 文件描述列表（可选）
     /// 
@@ -27,21 +42,34 @@ impl<'a> File<'a> {
     pub async fn create(
         &self, 
         files: Vec<&str>, 
-        purpose: &str, 
+        purpose: FilePurpose, 
         descriptions: Option<Vec<&str>>
     ) -> Result<crate::operation::file::output::FileUploadOutput, DashScopeError> {
         use reqwest::multipart;
         use std::path::Path;
 
         // 将参数转换为可以在闭包中使用的类型
-        let purpose = purpose.to_string();
-        let file_paths: Vec<String> = files.iter().map(|s| s.to_string()).collect();
+        let purpose_str = purpose.as_str().to_string();
+        
+        // 验证文件路径存在并转换为PathBuf
+        let file_paths: Vec<String> = {
+            let mut result = Vec::with_capacity(files.len());
+            for p in files {
+                let path = Path::new(p);
+                if !path.exists() {
+                    return Err(DashScopeError::UploadError(format!("File not found: {}", p)));
+                }
+                result.push(p.to_string());
+            }
+            result
+        };
+        
         let descriptions: Option<Vec<String>> = descriptions.map(|descs| descs.iter().map(|s| s.to_string()).collect());
 
         // 使用客户端的post_multipart方法发送请求，自动处理认证和重试
         self.client.post_multipart(FILE_PATH, move || {
             let mut form = multipart::Form::new()
-                .text("purpose", purpose.clone());
+                .text("purpose", purpose_str.clone());
 
             // 添加描述信息
             if let Some(descs) = &descriptions {
@@ -54,28 +82,16 @@ impl<'a> File<'a> {
             let mut form_with_files = form;
             for file_path in &file_paths {
                 let path = Path::new(file_path);
-                let os_file_name = path.file_name()
-                    .unwrap_or_else(|| {
-                        std::panic::resume_unwind(Box::new(DashScopeError::UploadError(
-                            format!("Invalid file path: {}", file_path)
-                        )));
-                        // 这里的代码不会被执行，因为上面的 panic 已经中断了执行
-                    });
-                
-                let file_name = os_file_name.to_str()
-                    .unwrap_or_else(|| {
-                        std::panic::resume_unwind(Box::new(DashScopeError::UploadError(
-                            format!("Invalid file name: {}", file_path)
-                        )));
-                        // 这里的代码不会被执行，因为上面的 panic 已经中断了执行
-                    }).to_string();
+                let file_name = path.file_name()
+                    .and_then(|name| name.to_str())
+                    .unwrap_or(&format!("file_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()))
+                    .to_string();
 
                 let file_data = std::fs::read(file_path)
                     .unwrap_or_else(|e| {
                         std::panic::resume_unwind(Box::new(DashScopeError::UploadError(
                             format!("Failed to read file {}: {}", file_path, e)
                         )));
-                        // 这里的代码不会被执行，因为上面的 panic 已经中断了执行
                     });
 
                 let part = multipart::Part::bytes(file_data)
@@ -110,7 +126,11 @@ impl<'a> File<'a> {
 
         // 验证参数
         let validated_page_no = page_no.unwrap_or(1);
-        let validated_page_no = if validated_page_no < 1 { 1 } else { validated_page_no };
+        let validated_page_no = if validated_page_no < 1 {
+            1
+        } else {
+            validated_page_no
+        };
 
         let validated_page_size = page_size.unwrap_or(10);
         let validated_page_size = validated_page_size.clamp(1, 100);
@@ -138,8 +158,6 @@ impl<'a> File<'a> {
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,10 +167,7 @@ mod tests {
     async fn test_file_operations() {
         let _ = dotenvy::dotenv(); // 加载 .env 文件，如果存在的话
         let api_key = std::env::var("DASHSCOPE_API_KEY").expect("DASHSCOPE_API_KEY must be set");
-        let config = ConfigBuilder::default()
-            .api_key(api_key)
-            .build()
-            .unwrap();
+        let config = ConfigBuilder::default().api_key(api_key).build().unwrap();
         let client = Client::with_config(config);
         let file = File::new(&client);
 
@@ -164,6 +179,39 @@ mod tests {
             }
             Err(e) => {
                 eprintln!("Error listing files: {:?}", e);
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_file_retrieve() {
+        let _ = dotenvy::dotenv();
+        let api_key = std::env::var("DASHSCOPE_API_KEY").expect("DASHSCOPE_API_KEY must be set");
+        let config = ConfigBuilder::default().api_key(api_key).build().unwrap();
+        let client = Client::with_config(config);
+        let file = File::new(&client);
+
+        // 测试获取文件列表以获取一个文件ID
+        let list_result = file.list(Some(1), Some(1)).await;
+        match list_result {
+            Ok(list_output) => {
+                if let Some(first_file) = list_output.data.files.first() {
+                    // 测试查询单个文件
+                    let result = file.retrieve(&first_file.file_id).await;
+                    match result {
+                        Ok(file_info) => {
+                            println!("Retrieved file: {}", file_info.data.name);
+                        }
+                        Err(e) => {
+                            eprintln!("Error retrieving file: {:?}", e);
+                        }
+                    }
+                } else {
+                    println!("No files found to retrieve");
+                }
+            }
+            Err(e) => {
+                eprintln!("Error listing files for retrieve test: {:?}", e);
             }
         }
     }

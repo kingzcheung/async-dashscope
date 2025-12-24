@@ -1,18 +1,17 @@
-use async_dashscope::Client;
+use async_dashscope::{Client, operation::file::FilePurpose::*};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 从环境变量加载API密钥
-    let _ = dotenvy::dotenv(); // 可选加载环境变量，不失败如果文件不存在
-    let api_key = std::env::var("DASHSCOPE_API_KEY").expect("DASHSCOPE_API_KEY must be set");
+     dotenvy::dotenv()?;
 
-    let client = Client::new().with_api_key(api_key);
+    let client = Client::new();
 
     // 上传文件示例
     let result = client.file()
         .create(
-            vec!["./examples/test.txt"],  // 文件路径列表
-            "fine-tune",                 // 用途
+            vec!["./examples/fine-tune.jsonl"],  // 文件路径列表
+            Batch,                 // 用途
             Some(vec!["A test file"])    // 描述（可选）
         )
         .await;

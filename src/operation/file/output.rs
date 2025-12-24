@@ -75,15 +75,15 @@ pub struct FileInfo {
     /// 文件名
     pub name: String,
     /// 描述
-    pub description: String,
+    pub description: Option<String>,
     /// 文件大小（字节）
     pub size: u64,
     /// MD5
     pub md5: String,
     /// 创建时间
-    pub gmt_create: String,
+    pub gmt_create: Option<String>,
     /// URL
-    pub url: String,
+    pub url: Option<String>,
     /// 区域 (列表接口有此字段，单个文件查询可能没有)
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub region: Option<String>,

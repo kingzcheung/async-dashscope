@@ -315,10 +315,13 @@ impl Client {
         F: Fn() -> reqwest::multipart::Form,
     {
         let request_maker = || async {
+            let mut headers = self.config.headers();
+            headers.remove("Content-Type");
+            headers.remove("X-DashScope-OssResourceResolve");
             Ok(self
                 .http_client
                 .post(self.config.url(path))
-                .headers(self.config.headers())
+                .headers(headers)
                 .multipart(form_fn())
                 .build()?)
         };

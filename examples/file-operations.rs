@@ -1,4 +1,6 @@
-use async_dashscope::Client;
+use std::fs::File;
+
+use async_dashscope::{Client, operation::file::FilePurpose::Batch};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -14,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let upload_result = file
         .create(
             vec!["./examples/test.txt"],  // 文件路径列表
-            "fine-tune",                 // 用途
+            Batch,                 // 用途
             Some(vec!["A test file"])    // 描述（可选）
         )
         .await;
@@ -53,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("File ID: {}", file.file_id);
                 println!("File Name: {}", file.name);
                 println!("Size: {} bytes", file.size);
-                println!("Created: {}", file.gmt_create);
+                println!("Created: {:?}", file.gmt_create);
                 println!("---");
             }
         }
@@ -74,7 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("  File ID: {}", file_info.data.file_id);
                     println!("  Name: {}", file_info.data.name);
                     println!("  Size: {} bytes", file_info.data.size);
-                    println!("  Created: {}", file_info.data.gmt_create);
+                    println!("  Created: {:?}", file_info.data.gmt_create);
                 }
                 Err(e) => {
                     eprintln!("Failed to retrieve file info: {}", e);
