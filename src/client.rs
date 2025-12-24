@@ -47,6 +47,10 @@ impl Client {
         }
     }
 
+    pub fn files(&self) -> crate::operation::file::File<'_> {
+        crate::operation::file::File::new(self)
+    }
+
     /// 获取当前实例的生成（Generation）信息
     ///
     /// 此方法属于操作级别，用于创建一个`Generation`对象，
@@ -104,6 +108,20 @@ impl Client {
     /// ```
     pub fn text2image(&self) -> crate::operation::text2image::Text2Image<'_> {
         crate::operation::text2image::Text2Image::new(self)
+    }
+
+    /// 创建一个新的文件操作实例
+    ///
+    /// # 返回
+    /// 返回一个可用于执行文件操作的 File 实例
+    ///
+    /// # 示例
+    /// ```
+    /// let client = Client::new();
+    /// let file = client.file();
+    /// ```
+    pub fn file(&self) -> crate::operation::file::File<'_> {
+        crate::operation::file::File::new(self)
     }
 
     pub fn http_client(&self) -> reqwest::Client {
@@ -271,6 +289,100 @@ impl Client {
 
     pub fn config(&self) -> &Config {
         &self.config
+    }
+    
+    /// 发送 multipart 表单 POST 请求
+    ///
+    /// # 参数
+    /// * `path` - API 路径
+    /// * `form_fn` - 返回 multipart 表单数据的函数
+    ///
+    /// # 返回值
+    /// 返回响应结果，类型由调用方指定
+    ///
+    /// # 错误
+    /// 返回 DashScopeError 如果请求失败或响应解析失败
+    ///
+    /// # 注意事项
+    /// 此函数是 crate 内部使用的工具函数，不对外公开
+    pub(crate) async fn post_multipart<O, F>(
+        &self,
+        path: &str,
+        form_fn: F,
+    ) -> Result<O, DashScopeError>
+    where
+        O: DeserializeOwned,
+        F: Fn() -> reqwest::multipart::Form,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .headers(self.config.headers())
+                .multipart(form_fn())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
+    }
+
+    /// 发送带查询参数的 GET 请求
+    ///
+    /// # 参数
+    /// * `path` - API 路径
+    /// * `params` - 查询参数
+    ///
+    /// # 返回值
+    /// 返回响应结果，类型由调用方指定
+    ///
+    /// # 错误
+    /// 返回 DashScopeError 如果请求失败或响应解析失败
+    ///
+    /// # 注意事项
+    /// 此函数是 crate 内部使用的工具函数，不对外公开
+    pub(crate) async fn get_with_params<O, P>(&self, path: &str, params: &P) -> Result<O, DashScopeError>
+    where
+        O: DeserializeOwned,
+        P: serde::Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .headers(self.config.headers())
+                .query(params)
+                .build()?)
+        };
+
+        self.execute(request_maker).await
+    }
+
+    /// 发送 DELETE 请求
+    ///
+    /// # 参数
+    /// * `path` - API 路径
+    ///
+    /// # 返回值
+    /// 返回响应结果，类型由调用方指定
+    ///
+    /// # 错误
+    /// 返回 DashScopeError 如果请求失败或响应解析失败
+    ///
+    /// # 注意事项
+    /// 此函数是 crate 内部使用的工具函数，不对外公开
+    pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, DashScopeError>
+    where
+        O: DeserializeOwned,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .delete(self.config.url(path))
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
     }
 }
 
