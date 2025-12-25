@@ -84,15 +84,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             // 删除文件（注意：实际使用时请谨慎操作）
-            // println!("Deleting file: {}", first_file.file_id);
-            // match file.delete(&first_file.file_id).await {
-            //     Ok(delete_result) => {
-            //         println!("File deleted successfully: {}", delete_result.data.deleted);
-            //     }
-            //     Err(e) => {
-            //         eprintln!("Failed to delete file: {}", e);
-            //     }
-            // }
+            println!("Deleting file: {}", first_file.file_id);
+            match file.delete(&first_file.file_id).await {
+                Ok(delete_result) => {
+                    println!("File deleted successfully: {}", delete_result.request_id);
+                }
+                Err(e) => {
+                    eprintln!("Failed to delete file: {}", e);
+                }
+            }
         }
     }
 

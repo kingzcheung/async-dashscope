@@ -1,6 +1,6 @@
 [package]
 name = "async-dashscope"
-version = "0.10.1"
+version = "0.11.1"
 edition = "2024"
 description = "A Rust client for DashScope API"
 repository = "https://github.com/kingzcheung/async-dashscope"
@@ -16,7 +16,7 @@ derive_builder = "0.20.2"
 reqwest-eventsource = "0.6.0"
 thiserror = "2.0.17"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
-serde_json = "1.0.146"
+serde_json = "1.0.147"
 tracing = "0.1.44"
 bytes = "1.11.0"
 reqwest = { version = "0.12.28", features = [
