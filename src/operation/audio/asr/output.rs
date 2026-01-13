@@ -1,0 +1,193 @@
+use serde::{Deserialize, Serialize};
+use std::pin::Pin;
+use tokio_stream::Stream;
+
+use crate::error::DashScopeError;
+
+/// ASR WebSocket 事件头结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WebSocketEventHeader {
+    /// 任务ID
+    pub task_id: String,
+    /// 事件类型
+    pub event: String,
+    /// 属性
+    pub attributes: serde_json::Value,
+    /// 错误码（仅task-failed事件有）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_code: Option<String>,
+    /// 错误消息（仅task-failed事件有）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_message: Option<String>,
+}
+
+/// ASR WebSocket 事件结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WebSocketEvent {
+    pub header: WebSocketEventHeader,
+    pub payload: WebSocketEventPayload,
+}
+
+/// ASR WebSocket 事件负载结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WebSocketEventPayload {
+    /// 输出（仅result-generated和task-finished事件有）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output: Option<AsrOutput>,
+    /// 使用情况（仅result-generated事件有）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub usage: Option<AsrUsage>,
+}
+
+/// ASR 输出结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AsrOutput {
+    /// 句子识别结果
+    pub sentence: AsrSentence,
+}
+
+/// ASR 句子结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AsrSentence {
+    /// 句子开始时间（单位ms）
+    pub begin_time: u32,
+    /// 句子结束时间（如果为中间识别结果则为null）
+    pub end_time: Option<u32>,
+    /// 识别文本
+    pub text: String,
+    /// 字时间戳信息
+    pub words: Vec<AsrWord>,
+    /// 心跳标记（若为true可跳过处理）
+    pub heartbeat: Option<bool>,
+    /// 句子是否已结束
+    pub sentence_end: bool,
+    /// 情感标签（仅特定条件下显示）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emo_tag: Option<String>,
+    /// 情感置信度（仅特定条件下显示）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emo_confidence: Option<f32>,
+}
+
+/// ASR 字结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AsrWord {
+    /// 字开始时间（单位ms）
+    pub begin_time: u32,
+    /// 字结束时间（单位ms）
+    pub end_time: u32,
+    /// 字文本
+    pub text: String,
+    /// 标点
+    pub punctuation: String,
+}
+
+/// ASR 使用情况结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AsrUsage {
+    /// 任务计费时长（单位秒）
+    pub duration: u32,
+}
+
+/// ASR 识别结果结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AutomaticSpeechRecognitionOutput {
+    /// 请求ID
+    pub request_id: String,
+    /// 输出结果
+    pub output: AsrOutput,
+    /// 使用情况
+    pub usage: AsrUsage,
+}
+
+/// ASR WebSocket 流式输出类型
+pub type AutomaticSpeechRecognitionOutputStream = Pin<Box<dyn Stream<Item = Result<WebSocketEvent, DashScopeError>> + Send>>;
+
+/// 事件类型枚举
+#[derive(Debug, Clone, PartialEq)]
+pub enum EventType {
+    TaskStarted,
+    ResultGenerated,
+    TaskFinished,
+    TaskFailed,
+}
+
+impl EventType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            EventType::TaskStarted => "task-started",
+            EventType::ResultGenerated => "result-generated",
+            EventType::TaskFinished => "task-finished",
+            EventType::TaskFailed => "task-failed",
+        }
+    }
+    
+    pub fn from_str(event: &str) -> Option<Self> {
+        match event {
+            "task-started" => Some(EventType::TaskStarted),
+            "result-generated" => Some(EventType::ResultGenerated),
+            "task-finished" => Some(EventType::TaskFinished),
+            "task-failed" => Some(EventType::TaskFailed),
+            _ => None,
+        }
+    }
+}
+
+impl AsrSentence {
+    /// 判断是否为中间结果（end_time为null）
+    pub fn is_intermediate(&self) -> bool {
+        self.end_time.is_none()
+    }
+    
+    /// 判断是否为最终结果（end_time不为null）
+    pub fn is_final(&self) -> bool {
+        self.end_time.is_some()
+    }
+    
+    /// 获取句子时长（如果end_time存在）
+    pub fn duration(&self) -> Option<u32> {
+        self.end_time.and_then(|end| {
+            if end > self.begin_time {
+                Some(end - self.begin_time)
+            } else {
+                None
+            }
+        })
+    }
+}
+
+impl WebSocketEvent {
+    /// 获取事件类型
+    pub fn event_type(&self) -> Option<EventType> {
+        EventType::from_str(&self.header.event)
+    }
+    
+    /// 判断是否为任务开始事件
+    pub fn is_task_started(&self) -> bool {
+        self.header.event == "task-started"
+    }
+    
+    /// 判断是否为结果生成事件
+    pub fn is_result_generated(&self) -> bool {
+        self.header.event == "result-generated"
+    }
+    
+    /// 判断是否为任务完成事件
+    pub fn is_task_finished(&self) -> bool {
+        self.header.event == "task-finished"
+    }
+    
+    /// 判断是否为任务失败事件
+    pub fn is_task_failed(&self) -> bool {
+        self.header.event == "task-failed"
+    }
+    
+    /// 获取识别结果（仅result-generated事件有效）
+    pub fn get_recognition_result(&self) -> Option<&AsrSentence> {
+        if self.is_result_generated() {
+            self.payload.output.as_ref().map(|o| &o.sentence)
+        } else {
+            None
+        }
+    }
+}
