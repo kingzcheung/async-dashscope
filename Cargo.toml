@@ -32,6 +32,9 @@ tokio-util = { version = "0.7.17", features = ["codec", "io-util"] }
 async-stream = "0.3.6"
 url = "2.5.7"
 base64 = "0.22.1"
+uuid = { version = "1.10.0", features = ["v4"] }
+async-tungstenite = { version = "0.32.1", features = ["tokio-rustls-native-certs"] }
+futures-util = "0.3.30"
 hound = {version = "3.5.1",optional = true}
 reqwest-websocket = {version = "0.5.0", optional = true}
 

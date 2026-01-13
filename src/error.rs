@@ -16,6 +16,10 @@ pub enum DashScopeError {
         source: serde_json::Error,
         raw_response: Vec<u8>,
     },
+    #[error("serialization error: {0}")]
+    SerializationError(String),
+    #[error("websocket error: {0}")]
+    WebSocketError(String),
     #[error("{0}")]
     ElementError(String),
     #[error("{0}")]
