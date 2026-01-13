@@ -33,16 +33,19 @@ async-stream = "0.3.6"
 url = "2.5.7"
 base64 = "0.22.1"
 hound = {version = "3.5.1",optional = true}
+reqwest-websocket = {version = "0.5.0", optional = true}
 
 [dev-dependencies]
 dotenvy ={ version = "0.15.7"}
 anyhow = "1.0.100"
 
 [features]
-default = ["rustls","wav-decoder"]
+default = ["rustls","wav-decoder","asr"]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
 
 native-tls = ["reqwest/native-tls"]
 
 wav-decoder = ["hound"]
+
+asr = ["reqwest-websocket"]
