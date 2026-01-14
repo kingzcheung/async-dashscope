@@ -13,9 +13,9 @@ use crate::{
 
 #[derive(Debug, Default, Clone)]
 pub struct Client {
-    http_client: reqwest::Client,
-    config: Config,
-    backoff: backoff::ExponentialBackoff,
+    pub(crate) http_client: reqwest::Client,
+    pub(crate) config: Config,
+    pub(crate) backoff: backoff::ExponentialBackoff,
 }
 
 impl Client {
