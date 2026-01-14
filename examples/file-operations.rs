@@ -1,5 +1,3 @@
-use std::fs::File;
-
 use async_dashscope::{Client, operation::file::FilePurpose::Batch};
 
 #[tokio::main]

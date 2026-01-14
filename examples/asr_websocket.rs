@@ -10,6 +10,7 @@ use async_dashscope::{
 };
 use futures_util::{SinkExt, stream::SplitSink};
 use reqwest_websocket::{CloseCode, Message, WebSocket};
+use tokio::time::Duration;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
@@ -98,7 +99,7 @@ pub async fn main() -> Result<()> {
                 }
                 WebSocketEvent::TaskFinished { header:_, payload } => {
                     println!("Task finished: {:?}", payload);
-                    tx.close().await.unwrap()
+                    // tx.close().await.unwrap()
                 },
                 WebSocketEvent::TaskFailed { header } => {
                     println!("Task failed: {:?}", header.error_message);
@@ -116,6 +117,11 @@ pub async fn main() -> Result<()> {
 
         async fn on_error(&self, error: DashScopeError) {
             println!("WebSocket connection closed: {:?}", error);
+        }
+        
+        fn heartbeat_interval(&self) -> Option<Duration> {
+            // 添加心跳间隔，每30秒发送一次心跳
+            Some(Duration::from_secs(10))
         }
     }
 
