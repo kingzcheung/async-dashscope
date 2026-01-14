@@ -39,7 +39,8 @@ pub async fn main() -> Result<()> {
                         .task_group("audio".to_string())
                         .task("asr".to_string())
                         .function("recognition".to_string())
-                        .model("fun-asr-realtime".to_string())
+                        // .model("fun-asr-realtime")
+                        .model("paraformer-realtime-v2")
                         .parameters(
                             RecognitionParametersBuilder::default()
                                 .format("wav".to_string())
@@ -99,7 +100,7 @@ pub async fn main() -> Result<()> {
                 }
                 WebSocketEvent::TaskFinished { header:_, payload } => {
                     println!("Task finished: {:?}", payload);
-                    // tx.close().await.unwrap()
+                    tx.close().await.unwrap()
                 },
                 WebSocketEvent::TaskFailed { header } => {
                     println!("Task failed: {:?}", header.error_message);

@@ -62,6 +62,7 @@ pub struct RunTaskPayload {
     /// 功能类型，固定为recognition
     function: String,
     /// 指定要使用的模型
+    #[builder(setter(into))]
     model: String,
     /// 输入配置，固定为空对象{}
     #[builder(default)]
@@ -78,9 +79,9 @@ pub struct RecognitionParameters {
     format: String,
     /// 音频采样率
     sample_rate: u32,
-    /// 热词ID（可选）暂不支持
-    // #[builder(setter(strip_option), default)]
-    // vocabulary_id: Option<String>,
+    /// 热词ID（可选）
+    #[builder(setter(into,strip_option), default)]
+    vocabulary_id: Option<String>,
     /// 是否开启语义断句（可选，默认false）
     #[builder(setter(strip_option), default)]
     semantic_punctuation_enabled: Option<bool>,

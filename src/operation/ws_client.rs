@@ -1,4 +1,3 @@
-use async_tungstenite::tungstenite::http;
 use reqwest_websocket::{RequestBuilderExt, WebSocket};
 
 use crate::error::DashScopeError;
@@ -9,8 +8,6 @@ const WS_URL: &str = "wss://dashscope.aliyuncs.com/api-ws/v1/inference";
 pub struct WsClient(pub(crate) WebSocket);
 
 impl WsClient {
-
-    #[must_use]
     pub async fn into_ws_client(client: crate::Client) -> Result<Self, DashScopeError> {
         let ws = client
             .http_client
