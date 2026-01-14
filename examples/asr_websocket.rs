@@ -4,8 +4,8 @@ use anyhow::Result;
 use async_dashscope::{
     Client,
     error::DashScopeError,
-    operation::audio::asr::{
-        FinishTaskParameters, RecognitionParametersBuilder, RunTaskHeaderBuilder, RunTaskParametersBuilder, RunTaskPayloadBuilder, WebSocketEvent, WsCallback
+    operation::audio::ws::{
+        FinishTaskParameters, RecognitionParametersBuilder, RunTaskHeaderBuilder, RunTaskParametersBuilder, RunTaskPayloadBuilder, WebSocketEvent, WebsocketCallback
     },
 };
 use futures_util::{SinkExt, stream::SplitSink};
@@ -21,7 +21,7 @@ pub async fn main() -> Result<()> {
         task_id: String,
     }
 
-    impl WsCallback for FunAsrCallback {
+    impl WebsocketCallback for FunAsrCallback {
         async fn on_open(&self, tx: &mut SplitSink<WebSocket, Message>) {
             // 连接打开时发送run-task指令
             println!("WebSocket connection opened");
