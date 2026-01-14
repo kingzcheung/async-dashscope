@@ -14,7 +14,7 @@ pub enum DashScopeError {
     #[error("failed to deserialize api response: {source}")]
     JSONDeserialize {
         source: serde_json::Error,
-        raw_response: Vec<u8>,
+        raw_response:String,
     },
     #[error("serialization error: {0}")]
     SerializationError(String),
@@ -77,7 +77,7 @@ pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> D
     );
     DashScopeError::JSONDeserialize {
         source: e,
-        raw_response: bytes.to_vec(),
+        raw_response: String::from_utf8_lossy(bytes).to_string(),
     }
 }
 

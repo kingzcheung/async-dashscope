@@ -45,7 +45,7 @@ impl<'a> Task<'a> {
         let resp_json = serde_json::from_slice::<TaskResult>(resp.as_ref()).map_err(|e| {
             crate::error::DashScopeError::JSONDeserialize {
                 source: e,
-                raw_response: resp.to_vec(),
+                raw_response: String::from_utf8_lossy(&resp).to_string(),
             }
         })?;
 

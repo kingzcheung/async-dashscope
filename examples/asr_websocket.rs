@@ -39,9 +39,9 @@ pub async fn main() -> Result<()> {
                         .task_group("audio".to_string())
                         .task("asr".to_string())
                         .function("recognition".to_string())
-                        // .model("fun-asr-realtime")
+                        .model("fun-asr-realtime")
                         // .model("paraformer-realtime-v2")
-                        .model("gummy-realtime-v1")
+                        // .model("gummy-realtime-v1")
                         .parameters(
                             RecognitionParametersBuilder::default()
                                 .format("wav".to_string())
@@ -94,10 +94,16 @@ pub async fn main() -> Result<()> {
                     // ResultGenerated result: "我是一个"
                     // ResultGenerated result: "我是一个很有钱"
                     // ResultGenerated result: "我是一个很有钱的人。"
+                    
                     println!(
                         "ResultGenerated result: {:?}",
                         payload.output.unwrap().sentence.unwrap().text
                     );
+                    // if model is gummy-realtime-v1,
+                    // println!(
+                    //     "gummy-realtime-v1 result: {:?}",
+                    //     payload.output.unwrap().transcription.unwrap().text.unwrap()
+                    // );
                 }
                 WebSocketEvent::TaskFinished { header:_, payload } => {
                     println!("Task finished: {:?}", payload);

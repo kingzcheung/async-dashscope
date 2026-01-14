@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::pin::Pin;
 use std::str::FromStr;
 use tokio_stream::Stream;
@@ -185,7 +184,7 @@ impl TryFrom<String> for WebSocketEvent {
                 let event: WebSocketEventWithHeaderOnly = serde_json::from_str(&value).map_err(|e| {
                     DashScopeError::JSONDeserialize {
                         source: e,
-                        raw_response: value.into(),
+                        raw_response: value,
                     }
                 })?;
                 Ok(WebSocketEvent::TaskFailed {
@@ -266,7 +265,8 @@ pub struct AsrSentence {
     /// 句子结束时间（如果为中间识别结果则为null）
     pub end_time: Option<u32>,
     /// 识别文本
-    pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
     /// 字时间戳信息
     pub words: Vec<AsrWord>,
     /// 心跳标记（若为true可跳过处理）
