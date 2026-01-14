@@ -19,7 +19,7 @@ serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = "1.0.147"
 tracing = "0.1.44"
 bytes = "1.11.0"
-reqwest = { version = "0.12.28", features = [
+reqwest = { version = "^0.12", features = [
   "json",
   "stream",
   "multipart",
