@@ -9,3 +9,4 @@ pub mod image2image;
 pub mod task;
 pub mod text2image;
 pub mod file;
+pub mod ws_client;

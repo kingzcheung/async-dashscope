@@ -18,8 +18,6 @@ pub enum DashScopeError {
     },
     #[error("serialization error: {0}")]
     SerializationError(String),
-    #[error("websocket error: {0}")]
-    WebSocketError(String),
     #[error("{0}")]
     ElementError(String),
     #[error("{0}")]
@@ -36,6 +34,14 @@ pub enum DashScopeError {
     
     #[error("timeout error: {0}")]
     TimeoutError(String),
+
+    #[error("websocket error: {0}")]
+    WebSocketError(#[from] reqwest_websocket::Error),
+
+    #[error("unknown event type: {event_type}")]
+    UnknownEventType{
+        event_type: String,
+    }
 }
 
 #[derive(Debug, Deserialize, Clone)]
