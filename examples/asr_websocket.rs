@@ -40,7 +40,8 @@ pub async fn main() -> Result<()> {
                         .task("asr".to_string())
                         .function("recognition".to_string())
                         // .model("fun-asr-realtime")
-                        .model("paraformer-realtime-v2")
+                        // .model("paraformer-realtime-v2")
+                        .model("gummy-realtime-v1")
                         .parameters(
                             RecognitionParametersBuilder::default()
                                 .format("wav".to_string())

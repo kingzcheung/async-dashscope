@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::pin::Pin;
 use std::str::FromStr;
 use tokio_stream::Stream;
@@ -211,12 +212,50 @@ struct WebSocketEventWithPayload {
     pub payload: WebSocketEventPayload,
 }
 
+/// ASR 转录结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Asrtranscription {
+    /// 句子ID
+    pub sentence_id: u32,
+    /// 开始时间（单位ms）
+    pub begin_time: u32,
+    /// 结束时间（单位ms）
+    pub end_time: u32,
+    /// 识别文本
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    /// 语言（可选）
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lang: Option<String>,
+    /// 字时间戳信息
+    pub words: Vec<AsrWord>,
+    /// 句子是否已结束
+    #[serde(deserialize_with = "deserialize_bool_from_any")]
+    pub sentence_end: bool,
+}
+
+/// ASR 翻译结构体
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AsrTranslation {
+    /// 翻译文本
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+}
+
 /// ASR 输出结构体
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AsrOutput {
     /// 句子识别结果
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sentence: Option<AsrSentence>,
+
+    /// 翻译结果
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub translations: Option<Vec<AsrTranslation>>,
+
+    /// 转录结果
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transcription: Option<Asrtranscription>,
 }
 
 /// ASR 句子结构体
@@ -233,6 +272,8 @@ pub struct AsrSentence {
     /// 心跳标记（若为true可跳过处理）
     pub heartbeat: Option<bool>,
     /// 句子是否已结束
+    /// 提示： Gummy 的 sentence_end 有 bug，出现了一个字符串的 false
+    #[serde(deserialize_with = "deserialize_bool_from_any")]
     pub sentence_end: bool,
     /// 情感标签（仅特定条件下显示）
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -250,7 +291,8 @@ pub struct AsrWord {
     /// 字结束时间（单位ms）
     pub end_time: u32,
     /// 字文本
-    pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
     /// 标点
     pub punctuation: String,
 }
@@ -331,5 +373,45 @@ impl AsrSentence {
                 None
             }
         })
+    }
+}
+
+use serde::de::{self, Deserializer};
+/// 从任何类型反序列化为布尔值的辅助函数
+fn deserialize_bool_from_any<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+    match value {
+        serde_json::Value::Bool(b) => Ok(b),
+        serde_json::Value::Number(n) => {
+            if n.is_u64() || n.is_i64() {
+                Ok(n.as_i64().unwrap_or(0) != 0)
+            } else {
+                Ok(n.as_f64().unwrap_or(0.0) != 0.0)
+            }
+        }
+        serde_json::Value::String(s) => {
+            if s == "true" || s == "1" || s == "yes" {
+                Ok(true)
+            } else if s == "false" || s == "0" || s == "no" {
+                Ok(false)
+            } else {
+                // 尝试解析字符串是否为数字
+                match s.parse::<i64>() {
+                    Ok(n) => Ok(n != 0),
+                    Err(_) => Err(de::Error::custom(format!(
+                        "unable to parse '{}' as bool",
+                        s
+                    ))),
+                }
+            }
+        }
+        serde_json::Value::Null => Ok(false),
+        _ => Err(de::Error::custom(format!(
+            "unexpected value type for bool: {:?}",
+            value
+        ))),
     }
 }
