@@ -131,7 +131,7 @@ impl TryFrom<String> for WebSocketEvent {
         let json_value: serde_json::Value = serde_json::from_str(&value).map_err(|e| {
             DashScopeError::JSONDeserialize {
                 source: e,
-                raw_response: value.clone().into(),
+                raw_response: value.clone(),
             }
         })?;
 
@@ -149,7 +149,7 @@ impl TryFrom<String> for WebSocketEvent {
                 let event: WebSocketEventWithHeaderOnly = serde_json::from_str(&value).map_err(|e| {
                     DashScopeError::JSONDeserialize {
                         source: e,
-                        raw_response: value.into(),
+                        raw_response: value,
                     }
                 })?;
                 Ok(WebSocketEvent::TaskStarted {
@@ -160,7 +160,7 @@ impl TryFrom<String> for WebSocketEvent {
                 let event: WebSocketEventWithPayload = serde_json::from_str(&value).map_err(|e| {
                     DashScopeError::JSONDeserialize {
                         source: e,
-                        raw_response: value.into(),
+                        raw_response: value,
                     }
                 })?;
                 Ok(WebSocketEvent::ResultGenerated {
@@ -172,7 +172,7 @@ impl TryFrom<String> for WebSocketEvent {
                 let event: WebSocketEventWithPayload = serde_json::from_str(&value).map_err(|e| {
                     DashScopeError::JSONDeserialize {
                         source: e,
-                        raw_response: value.into(),
+                        raw_response: value,
                     }
                 })?;
                 Ok(WebSocketEvent::TaskFinished {
