@@ -5,7 +5,8 @@ pub use tts::param::{
     TextToSpeechParamBuilder,
 };
 pub mod tts;
-pub mod asr;
+pub mod ws;
+// pub mod ws;
 
 const AUDIO_PATH: &str = "/services/aigc/multimodal-generation/generation";
 
@@ -44,8 +45,8 @@ impl<'a> Audio<'a> {
         self.client.post_stream(AUDIO_PATH, request).await
     }
 
-    pub async fn asr(&self) -> Result<asr::Asr> {
+    pub async fn asr(&self) -> Result<ws::WebsocketInference> {
         let ws = WsClient::into_ws_client(self.client.clone()).await?;
-        Ok(asr::Asr::new(ws))
+        Ok(ws::WebsocketInference::new(ws))
     }
 }
