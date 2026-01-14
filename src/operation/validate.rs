@@ -25,6 +25,7 @@ pub enum ModelValidator {
 
 pub trait Validator<T> {
     /// 验证请求的参数
+    #[allow(clippy::result_large_err)]
     fn validate<R: RequestTrait<P = T> + ?Sized>(&self, params: &R) -> Result<()>;
 }
 
