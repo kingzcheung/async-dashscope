@@ -37,9 +37,7 @@ pub struct WebSocketEventPayload {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum WebSocketEvent {
     /// 任务开始事件
-    TaskStarted {
-        header: WebSocketEventHeader,
-    },
+    TaskStarted { header: WebSocketEventHeader },
     /// 结果生成事件
     ResultGenerated {
         header: WebSocketEventHeader,
@@ -51,9 +49,7 @@ pub enum WebSocketEvent {
         payload: WebSocketEventPayload,
     },
     /// 任务失败事件
-    TaskFailed {
-        header: WebSocketEventHeader,
-    },
+    TaskFailed { header: WebSocketEventHeader },
 }
 
 impl WebSocketEvent {
@@ -97,13 +93,11 @@ impl WebSocketEvent {
         }
     }
 
-   
-
     /// 获取使用情况（仅部分事件类型有）
     pub fn get_usage(&self) -> Option<&AsrUsage> {
         match self {
-            WebSocketEvent::ResultGenerated {  payload, .. } => payload.usage.as_ref(),
-            WebSocketEvent::TaskFinished {  payload, .. } => payload.usage.as_ref(),
+            WebSocketEvent::ResultGenerated { payload, .. } => payload.usage.as_ref(),
+            WebSocketEvent::TaskFinished { payload, .. } => payload.usage.as_ref(),
             _ => None,
         }
     }
@@ -128,15 +122,15 @@ impl TryFrom<String> for WebSocketEvent {
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         // 首先解析JSON得到事件头，以确定事件类型
-        let json_value: serde_json::Value = serde_json::from_str(&value).map_err(|e| {
-            DashScopeError::JSONDeserialize {
+        let json_value: serde_json::Value =
+            serde_json::from_str(&value).map_err(|e| DashScopeError::JSONDeserialize {
                 source: e,
                 raw_response: value.clone(),
-            }
-        })?;
+            })?;
 
         // 提取事件类型
-        let event_type = json_value.get("header")
+        let event_type = json_value
+            .get("header")
             .and_then(|h| h.get("event"))
             .and_then(|e| e.as_str())
             .ok_or_else(|| DashScopeError::UnknownEventType {
@@ -146,51 +140,47 @@ impl TryFrom<String> for WebSocketEvent {
         // 根据事件类型决定如何反序列化整个对象
         match event_type {
             "task-started" => {
-                let event: WebSocketEventWithHeaderOnly = serde_json::from_str(&value).map_err(|e| {
-                    DashScopeError::JSONDeserialize {
+                let event: WebSocketEventWithHeaderOnly =
+                    serde_json::from_str(&value).map_err(|e| DashScopeError::JSONDeserialize {
                         source: e,
                         raw_response: value,
-                    }
-                })?;
+                    })?;
                 Ok(WebSocketEvent::TaskStarted {
                     header: event.header,
                 })
-            },
+            }
             "result-generated" => {
-                let event: WebSocketEventWithPayload = serde_json::from_str(&value).map_err(|e| {
-                    DashScopeError::JSONDeserialize {
+                let event: WebSocketEventWithPayload =
+                    serde_json::from_str(&value).map_err(|e| DashScopeError::JSONDeserialize {
                         source: e,
                         raw_response: value,
-                    }
-                })?;
+                    })?;
                 Ok(WebSocketEvent::ResultGenerated {
                     header: event.header,
                     payload: event.payload,
                 })
-            },
+            }
             "task-finished" => {
-                let event: WebSocketEventWithPayload = serde_json::from_str(&value).map_err(|e| {
-                    DashScopeError::JSONDeserialize {
+                let event: WebSocketEventWithPayload =
+                    serde_json::from_str(&value).map_err(|e| DashScopeError::JSONDeserialize {
                         source: e,
                         raw_response: value,
-                    }
-                })?;
+                    })?;
                 Ok(WebSocketEvent::TaskFinished {
                     header: event.header,
                     payload: event.payload,
                 })
-            },
+            }
             "task-failed" => {
-                let event: WebSocketEventWithHeaderOnly = serde_json::from_str(&value).map_err(|e| {
-                    DashScopeError::JSONDeserialize {
+                let event: WebSocketEventWithHeaderOnly =
+                    serde_json::from_str(&value).map_err(|e| DashScopeError::JSONDeserialize {
                         source: e,
                         raw_response: value,
-                    }
-                })?;
+                    })?;
                 Ok(WebSocketEvent::TaskFailed {
                     header: event.header,
                 })
-            },
+            }
             _ => Err(DashScopeError::UnknownEventType {
                 event_type: event_type.to_string(),
             }),
@@ -217,9 +207,11 @@ pub struct Asrtranscription {
     /// 句子ID
     pub sentence_id: u32,
     /// 开始时间（单位ms）
-    pub begin_time: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub begin_time: Option<u32>,
     /// 结束时间（单位ms）
-    pub end_time: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub end_time: Option<u32>,
     /// 识别文本
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
@@ -229,8 +221,9 @@ pub struct Asrtranscription {
     /// 字时间戳信息
     pub words: Vec<AsrWord>,
     /// 句子是否已结束
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(deserialize_with = "deserialize_bool_from_any")]
-    pub sentence_end: bool,
+    pub sentence_end: Option<bool>,
 }
 
 /// ASR 翻译结构体
@@ -260,9 +253,15 @@ pub struct AsrOutput {
 /// ASR 句子结构体
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AsrSentence {
+    /// 句子索引
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub index: Option<u32>,
     /// 句子开始时间（单位ms）
-    pub begin_time: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub begin_time: Option<u32>,
     /// 句子结束时间（如果为中间识别结果则为null）
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub end_time: Option<u32>,
     /// 识别文本
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -273,8 +272,8 @@ pub struct AsrSentence {
     pub heartbeat: Option<bool>,
     /// 句子是否已结束
     /// 提示： Gummy 的 sentence_end 有 bug，出现了一个字符串的 false
-    #[serde(deserialize_with = "deserialize_bool_from_any")]
-    pub sentence_end: bool,
+    #[serde(deserialize_with = "deserialize_bool_from_any", default)]
+    pub sentence_end: Option<bool>,
     /// 情感标签（仅特定条件下显示）
     #[serde(skip_serializing_if = "Option::is_none")]
     pub emo_tag: Option<String>,
@@ -301,7 +300,8 @@ pub struct AsrWord {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AsrUsage {
     /// 任务计费时长（单位秒）
-    pub duration: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
 }
 
 /// ASR 识别结果结构体
@@ -363,44 +363,33 @@ impl AsrSentence {
     pub fn is_final(&self) -> bool {
         self.end_time.is_some()
     }
-
-    /// 获取句子时长（如果end_time存在）
-    pub fn duration(&self) -> Option<u32> {
-        self.end_time.and_then(|end| {
-            if end > self.begin_time {
-                Some(end - self.begin_time)
-            } else {
-                None
-            }
-        })
-    }
 }
 
 use serde::de::{self, Deserializer};
 /// 从任何类型反序列化为布尔值的辅助函数
-fn deserialize_bool_from_any<'de, D>(deserializer: D) -> Result<bool, D::Error>
+fn deserialize_bool_from_any<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
 where
     D: Deserializer<'de>,
 {
     let value = serde_json::Value::deserialize(deserializer)?;
     match value {
-        serde_json::Value::Bool(b) => Ok(b),
+        serde_json::Value::Bool(b) => Ok(Some(b)),
         serde_json::Value::Number(n) => {
             if n.is_u64() || n.is_i64() {
-                Ok(n.as_i64().unwrap_or(0) != 0)
+                Ok(Some(n.as_i64().unwrap_or(0) != 0))
             } else {
-                Ok(n.as_f64().unwrap_or(0.0) != 0.0)
+                Ok(Some(n.as_f64().unwrap_or(0.0) != 0.0))
             }
         }
         serde_json::Value::String(s) => {
             if s == "true" || s == "1" || s == "yes" {
-                Ok(true)
+                Ok(Some(true))
             } else if s == "false" || s == "0" || s == "no" {
-                Ok(false)
+                Ok(Some(false))
             } else {
                 // 尝试解析字符串是否为数字
                 match s.parse::<i64>() {
-                    Ok(n) => Ok(n != 0),
+                    Ok(n) => Ok(Some(n != 0)),
                     Err(_) => Err(de::Error::custom(format!(
                         "unable to parse '{}' as bool",
                         s
@@ -408,7 +397,7 @@ where
                 }
             }
         }
-        serde_json::Value::Null => Ok(false),
+        serde_json::Value::Null => Ok(Some(false)),
         _ => Err(de::Error::custom(format!(
             "unexpected value type for bool: {:?}",
             value

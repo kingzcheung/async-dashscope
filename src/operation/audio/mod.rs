@@ -45,7 +45,12 @@ impl<'a> Audio<'a> {
         self.client.post_stream(AUDIO_PATH, request).await
     }
 
-    pub async fn asr(&self) -> Result<ws::WebsocketInference> {
+    pub async fn asr_ws(&self) -> Result<ws::WebsocketInference> {
+        let ws = WsClient::into_ws_client(self.client.clone()).await?;
+        Ok(ws::WebsocketInference::new(ws))
+    }
+
+    pub async fn tts_ws(&self) -> Result<ws::WebsocketInference> {
         let ws = WsClient::into_ws_client(self.client.clone()).await?;
         Ok(ws::WebsocketInference::new(ws))
     }
