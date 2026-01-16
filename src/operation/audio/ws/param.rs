@@ -522,6 +522,7 @@ mod tests {
             .text_type(TextType::PlainText)
             .format("wav".to_string())
             .sample_rate(44100)
+            .volume(50)  // 添加volume设置，使其与默认值一致
             .semantic_punctuation_enabled(false)
             .build()
             .expect("Failed to build recognition parameters");
