@@ -286,9 +286,14 @@ pub fn create_asr_run_task(
 pub fn create_tts_run_task(
     task_id: &str,
     model: &str,
-    voice: &str,
+    voice: Option< &str>,
     format: &str,
+    text: Option<&str>,
 ) -> RunTaskParameters {
+    let mut input = HashMap::new();
+    if let Some(t) = text  {
+        input.insert("text".to_string(), t.into());
+    }
     RunTaskParameters {
         header: TaskHeader {
             action: TaskAction::RunTask,
@@ -300,10 +305,10 @@ pub fn create_tts_run_task(
             task: RunTaskType::Tts,
             function: RunTaskFunction::SpeechSynthesizer,
             model: model.into(),
-            input: HashMap::new(),
+            input,
             parameters: TaskParameters {
                 text_type: Some(TextType::PlainText),
-                voice: Some(voice.into()),
+                voice: voice.map(|v| v.into()),
                 format: format.to_string(),
                 ..Default::default()
             },
@@ -497,7 +502,7 @@ mod tests {
         let params = TaskParameters::default();
 
         assert_eq!(params.format, "");
-        assert_eq!(params.sample_rate, Some(0));
+        assert_eq!(params.sample_rate, None);
         assert_eq!(params.semantic_punctuation_enabled, None);
         assert_eq!(params.max_sentence_silence, None);
         assert_eq!(params.multi_threshold_mode_enabled, None);
