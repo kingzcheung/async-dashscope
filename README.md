@@ -36,6 +36,19 @@ cargo add async-dashscope
 async-dashscope = "*" 
 ```
 
+如果你需要使用 `websocket` 相关功能，请添加 `websocket` feature ：
+
+```toml
+[dependencies]
+async-dashscope = { version = "*", features = ["websocket"] }
+```
+
+或者
+
+```bash
+cargo add async-dashscope --features websocket
+```
+
 #### 使用示例
 
 > 更多的示例请看 [examples](./examples)
