@@ -85,9 +85,11 @@ pub async fn main() -> Result<()> {
             //     .unwrap();
 
             // or use create_tts_run_task
-            let model = "cosyvoice-v3-flash";
+            // let model = "cosyvoice-v3-flash";
+            let model = "sambert-zhichu-v1";
+            let text = "我是一个平平无奇的小学生";
             let item =
-                create_tts_run_task(&self.task_id, model, Some("longanyang"), "wav", None)
+                create_tts_run_task(&self.task_id, model, None, "wav", Some(text))
                     .try_into()
                     .unwrap();
 
@@ -100,40 +102,7 @@ pub async fn main() -> Result<()> {
             // println!("Received event: {:?}", event);
             match event {
                 WebSocketEvent::TaskStarted { header: _ } => {
-                    // send continue task
-                    // let item = ContinueTaskParametersBuilder::default()
-                    // .header(
-                    //     TaskHeaderBuilder::default()
-                    //     .action(async_dashscope::operation::audio::ws::TaskAction::ContinueTask)
-                    //     .task_id(self.task_id.clone())
-                    //     .build()
-                    //     .unwrap()
-                    // ).payload(
-                    //     ContinueTaskPayloadBuilder::default()
-                    //     .input(
-                    //         ContinueTaskInputBuilder::default()
-                    //         .text("我是一个平平无奇的小学生")
-                    //         .build()
-                    //         .unwrap()
-                    //     )
-                    //     .build()
-                    //     .unwrap()
-                    // ).build().unwrap().try_into().unwrap();
-
-                    // or
-                    let item =
-                        create_continue_task(self.task_id.clone(), "我是一个平平无奇的小学生")
-                            .try_into()
-                            .unwrap();
-
-                    let item = Message::Text(item);
-                    tx.send(item).await.unwrap();
-
-                    // send finish task
-                    // let item = FinishTaskParameters::new(self.task_id.clone())
-                    //     .try_into()
-                    //     .unwrap();
-                    // or
+                    println!("Task started");
                     let item = create_finish_task(&self.task_id).try_into().unwrap();
                     let item = Message::Text(item);
                     tx.send(item).await.unwrap();
