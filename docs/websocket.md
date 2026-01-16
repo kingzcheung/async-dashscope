@@ -1,5 +1,9 @@
 
-## WebSocket 
+## WebSocket 支持
+
+```bash
+cargo add async-dashscope --features websocket
+```
 
 WebSocket 支持音频合成(TTS)和 音频识别(ASR)任务。
 

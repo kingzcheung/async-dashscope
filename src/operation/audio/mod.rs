@@ -1,12 +1,20 @@
-use crate::{Client, error::DashScopeError, operation::{audio::{asr::customization::Customization, tts::output::TextToSpeechOutputStream}, ws_client::WsClient}};
+use crate::{
+    Client,
+    error::DashScopeError,
+    operation::audio::{tts::output::TextToSpeechOutputStream},
+};
+#[cfg(feature = "websocket")]
+use crate::operation::audio::asr::customization::Customization;
 use crate::{error::Result, operation::audio::tts::output::TextToSpeechOutput};
 pub use tts::param::{
     Input as TextToSpeechInput, InputBuilder as TextToSpeechInputBuilder, TextToSpeechParam,
     TextToSpeechParamBuilder,
 };
-pub mod tts;
-pub mod ws;
+#[cfg(feature = "websocket")]
 pub mod asr;
+pub mod tts;
+#[cfg(feature = "websocket")]
+pub mod ws;
 
 const AUDIO_PATH: &str = "/services/aigc/multimodal-generation/generation";
 
@@ -45,17 +53,24 @@ impl<'a> Audio<'a> {
         self.client.post_stream(AUDIO_PATH, request).await
     }
 
+    #[cfg(feature = "websocket")]
     pub async fn asr_ws(&self) -> Result<ws::WebsocketInference> {
+        use crate::operation::ws_client::WsClient;
+
         let ws = WsClient::into_ws_client(self.client.clone()).await?;
         Ok(ws::WebsocketInference::new(ws))
     }
 
+    #[cfg(feature = "websocket")]
     pub async fn tts_ws(&self) -> Result<ws::WebsocketInference> {
+        use crate::operation::ws_client::WsClient;
+
         let ws = WsClient::into_ws_client(self.client.clone()).await?;
         Ok(ws::WebsocketInference::new(ws))
     }
 
-    pub async fn asr_customization(&self) ->Result<Customization> {
+    #[cfg(feature = "websocket")]
+    pub async fn asr_customization(&self) -> Result<Customization> {
         Ok(Customization::new(self.client.clone()))
     }
 }

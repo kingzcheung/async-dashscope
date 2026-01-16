@@ -18,6 +18,7 @@
 - **工具调用**: 支持 `qwen` 系列的工具调用(deepseek 不支持)
 - **音频合成**： 支持 `qwen-tts`、`qwen3-tts-flash` 音频合成
 - 图像编辑： 支持 `qwen-image-edit`,见 [qwen-image-edit](docs/qwen-image-edit.md)
+- **支持 `websocket` 调用**： 支持 `CosyVoice`、`Fun-ASR` 等 tts 或者 asr 的 `websocket` 调用。
 - **结构化输出**
 
 #### 安装
