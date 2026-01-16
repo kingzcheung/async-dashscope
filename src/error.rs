@@ -34,7 +34,7 @@ pub enum DashScopeError {
     
     #[error("timeout error: {0}")]
     TimeoutError(String),
-
+    #[cfg(feature = "websocket")]
     #[error("websocket error: {0}")]
     WebSocketError(#[from] reqwest_websocket::Error),
 

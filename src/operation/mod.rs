@@ -9,4 +9,5 @@ pub mod image2image;
 pub mod task;
 pub mod text2image;
 pub mod file;
+#[cfg(feature = "websocket")]
 pub mod ws_client;

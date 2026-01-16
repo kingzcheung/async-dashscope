@@ -2,6 +2,7 @@
 use std::path::Path;
 
 use anyhow::Result;
+#[cfg(feature = "websocket")]
 use async_dashscope::{
     Client,
     error::DashScopeError,
@@ -13,6 +14,7 @@ use async_dashscope::{
     },
 };
 use futures_util::{SinkExt, stream::SplitSink};
+#[cfg(feature = "websocket")]
 use reqwest_websocket::{CloseCode, Message, WebSocket};
 use tokio::time::Duration;
 use tokio::fs::File;
@@ -20,6 +22,13 @@ use tokio::io::AsyncWriteExt;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+#[cfg(not(feature = "websocket"))]
+fn main() {
+    eprintln!("This example requires the 'websocket' feature to be enabled.");
+    eprintln!("Run with: cargo run --example websocket_tts_sambert --features websocket");
+}
+
+#[cfg(feature = "websocket")]
 #[tokio::main]
 pub async fn main() -> Result<()> {
     dotenvy::dotenv()?;

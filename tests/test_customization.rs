@@ -1,3 +1,4 @@
+#![cfg(feature = "websocket")]
 use std::{thread::sleep, time::Duration};
 
 use async_dashscope::operation::audio::asr::{Customization, customization::VocabularyDetail};

@@ -1,6 +1,6 @@
 [package]
 name = "async-dashscope"
-version = "0.11.1"
+version = "0.12.0"
 edition = "2024"
 description = "A Rust client for DashScope API"
 repository = "https://github.com/kingzcheung/async-dashscope"
@@ -16,7 +16,7 @@ derive_builder = "0.20.2"
 reqwest-eventsource = "0.6.0"
 thiserror = "2.0.17"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
-serde_json = "1.0.147"
+serde_json = "1.0.149"
 tracing = "0.1.44"
 bytes = "1.11.0"
 reqwest = { version = "^0.12", features = [
@@ -26,11 +26,11 @@ reqwest = { version = "^0.12", features = [
 ], default-features = false }
 secrecy = { version = "0.10.3", features = ["serde"] }
 backoff = { version = "0.4.0", features = ["tokio"] }
-tokio = { version = "1.48.0", features = ["full"] }
-tokio-stream = "0.1.17"
-tokio-util = { version = "0.7.17", features = ["codec", "io-util"] }
+tokio = { version = "1.49.0", features = ["full"] }
+tokio-stream = "0.1.18"
+tokio-util = { version = "0.7.18", features = ["codec", "io-util"] }
 async-stream = "0.3.6"
-url = "2.5.7"
+url = "2.5.8"
 base64 = "0.22.1"
 uuid = { version = "1.10.0", features = ["v4"] }
 async-tungstenite = { version = "0.32.1", features = ["tokio-rustls-native-certs"] }
@@ -43,7 +43,7 @@ dotenvy ={ version = "0.15.7"}
 anyhow = "1.0.100"
 
 [features]
-default = ["rustls","wav-decoder","asr"]
+default = ["rustls","wav-decoder",]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
 
@@ -51,4 +51,5 @@ native-tls = ["reqwest/native-tls"]
 
 wav-decoder = ["hound"]
 
-asr = ["reqwest-websocket"]
+websocket = ["reqwest-websocket"]
+
