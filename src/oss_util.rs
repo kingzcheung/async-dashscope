@@ -32,7 +32,7 @@ pub(crate) struct PolicyData {
 pub(crate) async fn get_upload_policy(
     api_key: &str,
     model_name: &str,
-) -> Result<UploadPolicy, reqwest::Error> {
+) -> Result<UploadPolicy, crate::error::DashScopeError> {
     let url = "https://dashscope.aliyuncs.com/api/v1/uploads";
     let mut headers = HeaderMap::new();
     headers.insert(
@@ -49,10 +49,18 @@ pub(crate) async fn get_upload_policy(
         .headers(headers)
         .query(&params)
         .send()
-        .await?
-        .json::<UploadPolicy>()
-        .await?;
-    // todo: handle error
+        .await
+        .map_err(crate::error::DashScopeError::Reqwest)?;
+    
+    let status = response.status();
+    if !status.is_success() {
+        let error_text = response.text().await.map_err(crate::error::DashScopeError::Reqwest)?;
+        return Err(crate::error::DashScopeError::UploadError(
+            format!("Failed to get upload policy: {} - {}", status, error_text)
+        ));
+    }
+    
+    let response = response.json::<UploadPolicy>().await.map_err(crate::error::DashScopeError::Reqwest)?;
     Ok(response)
 }
 

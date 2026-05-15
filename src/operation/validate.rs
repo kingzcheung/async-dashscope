@@ -131,7 +131,7 @@ impl Validator<Parameters> for ModelValidator {
                     #[allow(deprecated)]
                     if p.incremental_output == Some(false) {
                         return Err(DashScopeError::InvalidArgument(
-                            "The model does not support streaming".into(),
+                            "The model only supports streaming mode, please set incremental_output = true or omit it".into(),
                         ));
                     }
                 }

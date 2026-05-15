@@ -48,10 +48,8 @@ impl<'a> File<'a> {
         use reqwest::multipart;
         use std::path::Path;
 
-        // 将参数转换为可以在闭包中使用的类型
         let purpose_str = purpose.as_str().to_string();
         
-        // 验证文件路径存在并转换为PathBuf
         let file_paths: Vec<String> = {
             let mut result = Vec::with_capacity(files.len());
             for p in files {
@@ -66,19 +64,16 @@ impl<'a> File<'a> {
         
         let descriptions: Option<Vec<String>> = descriptions.map(|descs| descs.iter().map(|s| s.to_string()).collect());
 
-        // 使用客户端的post_multipart方法发送请求，自动处理认证和重试
         self.client.post_multipart(FILE_PATH, move || {
             let mut form = multipart::Form::new()
                 .text("purpose", purpose_str.clone());
 
-            // 添加描述信息
             if let Some(descs) = &descriptions {
                 for desc in descs {
                     form = form.text("descriptions", desc.clone());
                 }
             };
 
-            // 添加文件 - 每次调用闭包时重新读取文件（用于重试）
             let mut form_with_files = form;
             for file_path in &file_paths {
                 let path = Path::new(file_path);
@@ -88,11 +83,7 @@ impl<'a> File<'a> {
                     .to_string();
 
                 let file_data = std::fs::read(file_path)
-                    .unwrap_or_else(|e| {
-                        std::panic::resume_unwind(Box::new(DashScopeError::UploadError(
-                            format!("Failed to read file {}: {}", file_path, e)
-                        )));
-                    });
+                    .expect("File should exist and be readable since we validated it earlier");
 
                 let part = multipart::Part::bytes(file_data)
                     .file_name(file_name);

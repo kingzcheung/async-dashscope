@@ -40,7 +40,7 @@ impl<'a> Task<'a> {
         }
 
         let raw_response_str = String::from_utf8_lossy(resp.as_ref());
-        println!("Raw API response: {}", raw_response_str);
+        tracing::debug!("Raw API response: {}", raw_response_str);
 
         let resp_json = serde_json::from_slice::<TaskResult>(resp.as_ref()).map_err(|e| {
             crate::error::DashScopeError::JSONDeserialize {
@@ -78,27 +78,31 @@ impl<'a> Task<'a> {
         interval: u64,
         max_attempts: u32,
     ) -> Result<TaskResult> {
-        for attempt in 1..=max_attempts {
-            // println!("第 {} 次轮询...", attempt);
+        let mut attempts = 0;
+        loop {
+            attempts += 1;
+            if attempts > max_attempts {
+                return Err(DashScopeError::TimeoutError(
+                    "polling timeout, task did not complete within expected time".to_string(),
+                ));
+            }
 
             match self.query(task_id).await {
                 Ok(result) => {
                     let task_status = &result.output.task_status;
-                    // println!("当前任务状态: {:?}", task_status);
 
-                    // 如果任务完成或失败，返回结果
                     match task_status {
                         TaskStatus::Succeeded => {
-                            // println!("任务执行完成，退出轮询");
                             return Ok(result);
                         }
                         TaskStatus::Failed => {
-                            // println!("任务执行失败，退出轮询");
                             return Ok(result);
                         }
                         TaskStatus::Pending | TaskStatus::Running => {
-                            // 继续轮询
-                            println!("任务仍在进行中，等待 {} 秒后继续轮询...", interval);
+                            tracing::info!(
+                                "Task still in progress, waiting {} seconds before next poll...",
+                                interval
+                            );
                             sleep(Duration::from_secs(interval)).await;
                         }
                         TaskStatus::Canceled | TaskStatus::Unknown => {
@@ -107,44 +111,29 @@ impl<'a> Task<'a> {
                     }
                 }
                 Err(e) => {
-                    // 区分不同类型的错误
                     match &e {
                         DashScopeError::JSONDeserialize {
                             source: _,
                             raw_response: _,
                         } => {
-                            // JSON 反序列化错误，可能是 API 响应格式问题
-                            // 继续重试，可能是临时问题
                             sleep(Duration::from_secs(interval)).await;
                         }
                         DashScopeError::Reqwest(_) => {
-                            // 网络错误，继续重试
                             sleep(Duration::from_secs(interval)).await;
                         }
                         DashScopeError::ApiError(api_error) => {
-                            // API 错误，检查是否是空响应错误
                             if api_error.code.as_deref() == Some("EmptyResponse") {
                                 sleep(Duration::from_secs(interval)).await;
                             } else {
-                                // 其他 API 错误，可能是配置问题，直接返回错误
                                 return Err(e);
                             }
                         }
                         _ => {
-                            // 其他错误，可能是配置问题，直接返回错误
                             return Err(e);
                         }
                     }
                 }
             }
-            if attempt > max_attempts {
-                break;
-            }
         }
-
-        // 超过最大轮询次数
-        Err(DashScopeError::TimeoutError(
-            "轮询超时，任务未在预期时间内完成".to_string(),
-        ))
     }
 }

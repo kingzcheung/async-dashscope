@@ -86,6 +86,7 @@ impl Client {
     ///
     /// # Examples
     /// ```
+    /// use async_dashscope::Client;
     /// let client = Client::new();
     /// let image2image = client.image2image();
     /// ```
@@ -103,6 +104,7 @@ impl Client {
     ///
     /// # 示例
     /// ```
+    /// use async_dashscope::Client;
     /// let client = Client::new();
     /// let text2image = client.text2image();
     /// ```
@@ -117,6 +119,7 @@ impl Client {
     ///
     /// # 示例
     /// ```
+    /// use async_dashscope::Client;
     /// let client = Client::new();
     /// let file = client.file();
     /// ```

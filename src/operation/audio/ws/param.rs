@@ -413,7 +413,7 @@ impl TryFrom<ContinueTaskParameters> for String {
 pub fn create_continue_task<S: ToString>(task_id: String, text: S) -> ContinueTaskParameters {
     ContinueTaskParameters {
         header: TaskHeader {
-            action: TaskAction::FinishTask,
+            action: TaskAction::ContinueTask,
             task_id,
             streaming: "duplex".into(),
         },
