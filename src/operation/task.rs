@@ -19,14 +19,11 @@ impl<'a> Task<'a> {
     pub(crate) async fn query(&self, task_id: &str) -> Result<TaskResult> {
         let http_client = self.client.http_client();
         let headers = self.client.config().headers();
-        let req = http_client
-            .get(
-                self.client
-                    .config()
-                    .url(format!("{}/{}", TASK_PATH, task_id).as_str()),
-            )
-            .headers(headers)
-            .build()?;
+        let url = self
+            .client
+            .config()
+            .try_url(&format!("{}/{}", TASK_PATH, task_id))?;
+        let req = http_client.get(url).headers(headers).build()?;
 
         let resp = http_client.execute(req).await?.bytes().await?;
 

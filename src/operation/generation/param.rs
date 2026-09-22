@@ -24,6 +24,13 @@ pub struct GenerationParam {
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub stream_options: Option<StreamOptions>,
+
+    /// 插件配置。官方通过 `X-DashScope-Plugin` 请求头传递，
+    /// 字符串按原样发送，其他类型序列化为 JSON，不参与请求体序列化
+    #[serde(skip)]
+    #[builder(setter(into, strip_option))]
+    #[builder(default=None)]
+    pub plugins: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Builder, Serialize, Deserialize, PartialEq)]

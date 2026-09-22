@@ -1,4 +1,4 @@
-use std::{fmt::Debug, pin::Pin};
+use std::{fmt::Debug, pin::Pin, time::Duration};
 
 use async_stream::try_stream;
 use bytes::Bytes;
@@ -11,27 +11,56 @@ use crate::{
     error::{ApiError, DashScopeError, map_deserialization_error},
 };
 
-#[derive(Debug, Default, Clone)]
+/// 默认读超时，与官方 SDK 的 `DEFAULT_REQUEST_TIMEOUT_SECONDS` 一致。
+///
+/// 使用读超时（每次成功读取后重置）而不是总超时，避免中断长时间的流式响应。
+pub const DEFAULT_REQUEST_TIMEOUT: Duration = Duration::from_secs(300);
+
+fn default_http_client() -> reqwest::Client {
+    reqwest::Client::builder()
+        .read_timeout(DEFAULT_REQUEST_TIMEOUT)
+        .build()
+        .unwrap_or_default()
+}
+
+#[derive(Debug, Clone)]
 pub struct Client {
     pub(crate) http_client: reqwest::Client,
     pub(crate) config: Config,
     pub(crate) backoff: backoff::ExponentialBackoff,
 }
 
+impl Default for Client {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Client {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            http_client: default_http_client(),
+            config: Config::default(),
+            backoff: backoff::ExponentialBackoff::default(),
+        }
     }
 
     pub fn with_config(config: Config) -> Self {
         Self {
-            http_client: reqwest::Client::new(),
+            http_client: default_http_client(),
             config,
             backoff: backoff::ExponentialBackoff::default(),
         }
     }
     pub fn with_api_key(mut self, api_key: String) -> Self {
         self.config.set_api_key(api_key.into());
+        self
+    }
+
+    /// 指定归属业务空间（Workspace）ID，所有请求会自动携带
+    /// `X-DashScope-WorkSpace` 请求头
+    pub fn with_workspace(mut self, workspace: String) -> Self {
+        self.config.set_workspace(workspace);
         self
     }
 
@@ -167,15 +196,27 @@ impl Client {
         &self,
         path: &str,
         request: I,
-        headers: reqwest::header::HeaderMap,
+        mut headers: reqwest::header::HeaderMap,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<O, DashScopeError>> + Send>>, DashScopeError>
     where
         I: Serialize + Debug,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
+        // SSE 流式请求统一请求头（与官方 SDK 保持一致，Accept 由
+        // reqwest-eventsource 设置为 text/event-stream）
+        headers.remove(reqwest::header::ACCEPT);
+        headers.insert(
+            "X-DashScope-SSE",
+            reqwest::header::HeaderValue::from_static("enable"),
+        );
+        headers.insert(
+            "X-Accel-Buffering",
+            reqwest::header::HeaderValue::from_static("no"),
+        );
+
         let event_source = self
             .http_client
-            .post(self.config.url(path))
+            .post(self.config.try_url(path)?)
             .headers(headers)
             .json(&request)
             .eventsource()?;
@@ -220,7 +261,7 @@ impl Client {
         let request_maker = || async {
             Ok(self
                 .http_client
-                .post(self.config.url(path))
+                .post(self.config.try_url(path)?)
                 .headers(headers.clone())
                 .json(&request)
                 .build()?)
@@ -319,11 +360,10 @@ impl Client {
     {
         let request_maker = || async {
             let mut headers = self.config.headers();
-            headers.remove("Content-Type");
-            headers.remove("X-DashScope-OssResourceResolve");
+            headers.remove(reqwest::header::CONTENT_TYPE);
             Ok(self
                 .http_client
-                .post(self.config.url(path))
+                .post(self.config.try_url(path)?)
                 .headers(headers)
                 .multipart(form_fn())
                 .build()?)
@@ -354,7 +394,7 @@ impl Client {
         let request_maker = || async {
             Ok(self
                 .http_client
-                .get(self.config.url(path))
+                .get(self.config.try_url(path)?)
                 .headers(self.config.headers())
                 .query(params)
                 .build()?)
@@ -383,7 +423,7 @@ impl Client {
         let request_maker = || async {
             Ok(self
                 .http_client
-                .delete(self.config.url(path))
+                .delete(self.config.try_url(path)?)
                 .headers(self.config.headers())
                 .build()?)
         };
@@ -459,5 +499,24 @@ mod tests {
                 assert_eq!(header.1, "Bearer test key");
             }
         }
+    }
+
+    #[test]
+    pub fn test_with_workspace() {
+        let config = ConfigBuilder::default()
+            .api_key("test key")
+            .build()
+            .unwrap();
+        let client = Client::with_config(config).with_workspace("ws_test".to_string());
+
+        assert_eq!(client.config().workspace(), Some("ws_test"));
+        assert_eq!(
+            client
+                .config()
+                .headers()
+                .get(crate::config::WORKSPACE_HEADER)
+                .unwrap(),
+            "ws_test"
+        );
     }
 }

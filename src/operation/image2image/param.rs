@@ -13,9 +13,11 @@ impl Image2imageParam {
     pub(crate) async fn upload_file_to_oss(
         mut self,
         api_key: &str,
+        workspace: Option<&str>,
     ) -> Result<Self, crate::error::DashScopeError> {
         let oss_url =
-            oss_util::upload_file_and_get_url(api_key, &self.model, &self.input.image_url).await?;
+            oss_util::upload_file_and_get_url(api_key, &self.model, &self.input.image_url, workspace)
+                .await?;
 
         self.input.image_url = oss_url;
 

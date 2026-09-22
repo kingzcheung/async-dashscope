@@ -25,31 +25,44 @@ impl MultiModalConversationParam {
     pub(crate) async fn upload_file_to_oss(
         mut self,
         api_key: &str,
+        workspace: Option<&str>,
     ) -> Result<Self, crate::error::DashScopeError> {
         for message in self.input.messages.iter_mut() {
             for content in message.contents.iter_mut() {
                 match content {
                     Element::Image(url) => {
                         if !is_valid_url(url) {
-                            let oss_url =
-                                oss_util::upload_file_and_get_url(api_key, &self.model, url)
-                                    .await?;
+                            let oss_url = oss_util::upload_file_and_get_url(
+                                api_key,
+                                &self.model,
+                                url,
+                                workspace,
+                            )
+                            .await?;
                             *content = Element::Image(oss_url);
                         }
                     }
                     Element::Audio(url) => {
                         if !is_valid_url(url) {
-                            let oss_url =
-                                oss_util::upload_file_and_get_url(api_key, &self.model, url)
-                                    .await?;
+                            let oss_url = oss_util::upload_file_and_get_url(
+                                api_key,
+                                &self.model,
+                                url,
+                                workspace,
+                            )
+                            .await?;
                             *content = Element::Audio(oss_url);
                         }
                     }
                     Element::Video(url) => {
                         if !is_valid_url(url) {
-                            let oss_url =
-                                oss_util::upload_file_and_get_url(api_key, &self.model, url)
-                                    .await?;
+                            let oss_url = oss_util::upload_file_and_get_url(
+                                api_key,
+                                &self.model,
+                                url,
+                                workspace,
+                            )
+                            .await?;
                             *content = Element::Video(oss_url);
                         }
                     }

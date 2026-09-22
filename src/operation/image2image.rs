@@ -43,11 +43,16 @@ impl<'a> Image2Image<'a> {
         //     valid.validate(&request)?;
         // }
         let request = request
-            .upload_file_to_oss(self.client.config().api_key().expose_secret())
+            .upload_file_to_oss(
+                self.client.config().api_key().expose_secret(),
+                self.client.config().workspace(),
+            )
             .await?;
 
-        let mut headers = self.client.config().headers();
-        headers.insert("X-DashScope-Async", "enable".parse().unwrap());
+        let headers = self.client.config().headers_with(&[
+            (crate::config::OSS_RESOURCE_RESOLVE_HEADER, "enable"),
+            (crate::config::ASYNC_HEADER, "enable"),
+        ]);
 
         // 发送POST请求到生成服务，并等待结果
         self.client

@@ -50,6 +50,10 @@ pub struct Function {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Choices {
+    /// 当前 choice 的序号，`n > 1` 时用于区分不同结果
+    #[serde(default)]
+    pub index: Option<i32>,
+
     /// 有四种情况：
     /// - 正在生成时为null；
     /// - 因模型输出自然结束，或触发输入参数中的stop条件而结束时为stop；

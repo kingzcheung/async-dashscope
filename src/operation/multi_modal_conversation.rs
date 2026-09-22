@@ -49,12 +49,19 @@ impl<'a> MultiModalConversation<'a> {
         }
 
         let request = request
-            .upload_file_to_oss(self.client.config().api_key().expose_secret())
+            .upload_file_to_oss(
+                self.client.config().api_key().expose_secret(),
+                self.client.config().workspace(),
+            )
             .await?;
 
         // 发起非流式多模态对话请求。
         self.client
-            .post(MULTIMODAL_CONVERSATION_PATH, request)
+            .post_with_headers(
+                MULTIMODAL_CONVERSATION_PATH,
+                request,
+                self.client.config().oss_headers(),
+            )
             .await
     }
 
@@ -93,7 +100,11 @@ impl<'a> MultiModalConversation<'a> {
 
         // 发起流式请求并返回结果流
         self.client
-            .post_stream(MULTIMODAL_CONVERSATION_PATH, request)
+            .post_stream_with_headers(
+                MULTIMODAL_CONVERSATION_PATH,
+                request,
+                self.client.config().oss_headers(),
+            )
             .await
     }
 }

@@ -25,6 +25,42 @@ use async_dashscope::Client;
 let client = Client::new().with_api_key("your-api-key-here".to_string());
 ```
 
+#### 环境变量
+
+| 环境变量 | 说明 |
+| --- | --- |
+| `DASHSCOPE_API_KEY` | API Key |
+| `DASHSCOPE_API_KEY_FILE_PATH` | API Key 文件路径，未设置时回退到 `~/.dashscope/api_key` |
+| `DASHSCOPE_WORKSPACE_ID` | 归属业务空间 ID |
+| `DASHSCOPE_API_REGION` | 地域（如 `ap-southeast-1`），非北京地域会自动使用 `https://{workspace_id}.{region}.maas.aliyuncs.com` 域名 |
+| `DASHSCOPE_API_VERSION` | API 版本，默认 `v1` |
+| `DASHSCOPE_HTTP_BASE_URL` | HTTP 接入地址，优先级高于地域推导 |
+| `DASHSCOPE_WEBSOCKET_BASE_URL` | WebSocket 接入地址，优先级高于地域推导 |
+| `DASHSCOPE_DISABLE_SDK_HEADERS` | 设置任意值可禁用 SDK 标识请求头 |
+
+> HTTP 请求默认读超时 300 秒（与官方 SDK 一致，每次成功读取后重置）；如需调整可自行构建 `reqwest::Client` 并通过 `Client::build` 传入。
+
+#### 归属业务空间（Workspace）
+
+API Key 可以归属到某个业务空间（子业务空间）。设置后所有请求会自动携带 `X-DashScope-WorkSpace` 请求头：
+
+```rust
+use async_dashscope::config::ConfigBuilder;
+
+let config = ConfigBuilder::default()
+    .api_key("your-api-key-here")
+    .workspace("ws_xxxxxxxx")
+    .build()?;
+let client = async_dashscope::Client::with_config(config);
+
+// 或
+let client = async_dashscope::Client::new()
+    .with_api_key("your-api-key-here".to_string())
+    .with_workspace("ws_xxxxxxxx".to_string());
+```
+
+`api_base` / `websocket_base` 支持 `{workspace_id}` 占位符（例如 `https://{workspace_id}.ap-southeast-1.maas.aliyuncs.com/api/v1`）；占位符存在但未配置或非法 workspace 时，请求会直接返回错误。
+
 ### 文本生成
 
 ```rust
@@ -98,6 +134,25 @@ let request = GenerationParamBuilder::default()
             Err(e) => eprintln!("{}", e),
         }
     }
+```
+
+> `incremental_output` 控制流式输出的形式：
+> - `true`（默认）：每个数据块只包含增量内容；
+> - `false`：对不支持非增量输出的模型，SDK 会自动改用增量请求并在客户端合并为全量输出（`tts`、`omni`、`qwen-deep-research` 模型除外）。
+
+### 插件（plugins）
+
+`plugins` 通过 `X-DashScope-Plugin` 请求头传递（不会出现在请求体中），支持字符串或 JSON 对象：
+
+```rust
+let request = GenerationParamBuilder::default()
+    .model("qwen-plus".to_string())
+    .input(/* ... */)
+    // 字符串形式
+    .plugins("search_plus")
+    // 或 JSON 形式
+    // .plugins(serde_json::json!({"search": {"enable": true}}))
+    .build()?;
 ```
 
 ### 多模态生成

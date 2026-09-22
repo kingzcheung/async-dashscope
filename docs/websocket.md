@@ -10,6 +10,16 @@ WebSocket 支持音频合成(TTS)和 音频识别(ASR)任务。
 TTS 任务支持的模型有： `CosyVoice`、`Sambert`。
 ASR 任务支持的模型有： `ParaFormer`、` Fun-ASR`、`Gummy`。
 
+### 接入地址与业务空间
+
+WebSocket 接入地址默认是 `wss://dashscope.aliyuncs.com/api-ws/v1/inference`，可通过以下方式调整：
+
+- 环境变量 `DASHSCOPE_WEBSOCKET_BASE_URL`；
+- 环境变量 `DASHSCOPE_API_REGION`（非北京地域会自动使用 `wss://{workspace_id}.{region}.maas.aliyuncs.com/api-ws/v1/inference`）；
+- `ConfigBuilder::websocket_base(...)`，支持 `{workspace_id}` 占位符。
+
+使用子业务空间的 API Key 时，设置 `DASHSCOPE_WORKSPACE_ID` 或 `Config::workspace`，WebSocket 握手会自动携带 `X-DashScope-WorkSpace` 请求头。
+
 无论是 `tts` 还是 `asr` 任务，按时间顺序，客户端与服务端的交互流程如下：
 
 1. 建立连接：客户端与服务端建立WebSocket连接。

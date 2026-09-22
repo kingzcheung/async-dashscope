@@ -67,6 +67,59 @@ let client = Client::new().with_api_key(std::env::var("DASHSCOPE_API_KEY").unwra
 
 ```
 
+##### 归属业务空间（Workspace）
+
+API Key 可以归属到某个业务空间（子业务空间），调用时需要指定业务空间 ID。支持三种方式：
+
+```shell
+# 方式一：环境变量，未显式指定 workspace 时作为默认值
+export DASHSCOPE_WORKSPACE_ID=ws_xxxxxxxx
+```
+
+```rust
+// 方式二：Config
+use async_dashscope::config::ConfigBuilder;
+
+let config = ConfigBuilder::default()
+    .api_key("sk-xxxxxxxx")
+    .workspace("ws_xxxxxxxx")
+    .build()?;
+let client = async_dashscope::Client::with_config(config);
+
+// 方式三：Client 便捷方法
+let client = async_dashscope::Client::new()
+    .with_api_key("sk-xxxxxxxx".to_string())
+    .with_workspace("ws_xxxxxxxx".to_string());
+```
+
+指定后所有请求会自动携带 `X-DashScope-WorkSpace` 请求头。对于非北京地域的 MaaS 域名，可以直接设置 `DASHSCOPE_API_REGION` 自动推导，也可以在 `api_base` / `websocket_base` 中使用 `{workspace_id}` 占位符，例如：
+
+```rust
+let config = ConfigBuilder::default()
+    .api_key("sk-xxxxxxxx")
+    .workspace("ws_xxxxxxxx")
+    .api_base("https://{workspace_id}.ap-southeast-1.maas.aliyuncs.com/api/v1")
+    .websocket_base("wss://{workspace_id}.ap-southeast-1.maas.aliyuncs.com/api-ws/v1/inference")
+    .build()?;
+```
+
+占位符存在但未配置（或非法）workspace 时，内部请求会直接返回错误。
+
+##### 环境变量
+
+| 环境变量 | 说明 |
+| --- | --- |
+| `DASHSCOPE_API_KEY` | API Key |
+| `DASHSCOPE_API_KEY_FILE_PATH` | API Key 文件路径，未设置时回退到 `~/.dashscope/api_key` |
+| `DASHSCOPE_WORKSPACE_ID` | 业务空间 ID |
+| `DASHSCOPE_API_REGION` | 地域（如 `ap-southeast-1`），非北京地域自动使用 `{workspace_id}.{region}.maas.aliyuncs.com` 域名 |
+| `DASHSCOPE_API_VERSION` | API 版本，默认 `v1` |
+| `DASHSCOPE_HTTP_BASE_URL` | HTTP 接入地址，优先级高于地域推导，默认 `https://dashscope.aliyuncs.com/api/v1` |
+| `DASHSCOPE_WEBSOCKET_BASE_URL` | WebSocket 接入地址，优先级高于地域推导，默认 `wss://dashscope.aliyuncs.com/api-ws/v1/inference` |
+| `DASHSCOPE_DISABLE_SDK_HEADERS` | 设置任意值可禁用 `user-agent`、`x-dashscope-sdk-client` 等标识请求头 |
+
+> HTTP 请求默认读超时 300 秒（与官方 SDK 一致）；`generation` 接口的 `incremental_output(false)` 会自动在客户端合并为全量输出；`GenerationParamBuilder::plugins(...)` 通过 `X-DashScope-Plugin` 请求头传递。
+
 ##### 文本生成示例
 
 ```rust

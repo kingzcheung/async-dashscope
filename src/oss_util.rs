@@ -32,6 +32,7 @@ pub(crate) struct PolicyData {
 pub(crate) async fn get_upload_policy(
     api_key: &str,
     model_name: &str,
+    workspace: Option<&str>,
 ) -> Result<UploadPolicy, crate::error::DashScopeError> {
     let url = "https://dashscope.aliyuncs.com/api/v1/uploads";
     let mut headers = HeaderMap::new();
@@ -40,6 +41,11 @@ pub(crate) async fn get_upload_policy(
         format!("Bearer {api_key}").parse().unwrap(),
     );
     headers.insert("Content-Type", "application/json".parse().unwrap());
+    if let Some(workspace) = workspace {
+        if let Ok(value) = workspace.parse() {
+            headers.insert(crate::config::WORKSPACE_HEADER, value);
+        }
+    }
     let params = json!({
         "action": "getPolicy",
         "model": model_name
@@ -111,6 +117,7 @@ pub(crate) async fn upload_file_and_get_url(
     api_key: &str,
     model_name: &str,
     file_path: &str,
+    workspace: Option<&str>,
 ) -> Result<String, crate::error::DashScopeError> {
     let p = PathBuf::from_str(file_path)
         .map_err(|e| crate::error::DashScopeError::UploadError(e.to_string()))?;
@@ -140,7 +147,7 @@ pub(crate) async fn upload_file_and_get_url(
         ));
     }
 
-    let policy_data = get_upload_policy(api_key, model_name).await?;
+    let policy_data = get_upload_policy(api_key, model_name, workspace).await?;
 
     let url = upload_file_to_oss(policy_data.data, file,file_name).await?;
 
@@ -167,7 +174,8 @@ mod test {
             return Ok(());
         };
         let model_name = "qwen-vl-max";
-        let result = get_upload_policy(&api_key, model_name).await;
+        let workspace = std::env::var(crate::config::DASHSCOPE_WORKSPACE_ID_ENV).ok();
+        let result = get_upload_policy(&api_key, model_name, workspace.as_deref()).await;
         assert!(result.is_ok());
 
         Ok(())

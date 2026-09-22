@@ -15,11 +15,10 @@ pub struct Parameters {
     #[builder(setter(strip_option))]
     #[builder(default=None)]
     pub translation_options: Option<TranslationOptions>,
-    // 增量式流式输出
-    #[deprecated(
-        since = "0.5.0",
-        note = "Stream control is now unified under the top-level `stream` parameter in request objects. This parameter will be ignored."
-    )]
+    /// 增量式流式输出。
+    ///
+    /// 设置为 `false` 时（仅生成类接口），对于不支持非增量输出的模型，
+    /// SDK 会自动改为增量请求并在客户端合并为全量输出。
     #[builder(setter(into, strip_option))]
     #[builder(default=None)]
     pub incremental_output: Option<bool>,
